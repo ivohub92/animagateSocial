@@ -10,7 +10,7 @@ import { Avatar } from '../../shared/avatar/avatar';
 import { Icono } from '../../shared/icono/icono';
 import { PublicacionCard } from '../../shared/publicacion/publicacion';
 
-/** Cuántas publicaciones propias se muestran en el perfil. */
+
 const ULTIMAS = 3;
 
 @Component({
@@ -33,7 +33,7 @@ export class MiPerfil {
     return u ? calcularEdad(u.fechaNacimiento) : null;
   });
 
-  /** Suma de me gusta de las publicaciones que se ven en el perfil. */
+ 
   protected readonly meGustaRecibidos = computed(
     () => this.mias()?.items.reduce((total, p) => total + p.cantidadMeGusta, 0) ?? 0,
   );

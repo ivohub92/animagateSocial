@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { createServer } from 'node:http';
 import { AppModule } from './app.module.js';
+import { opcionesCors } from './common/cors.js';
 
 const PORT = process.env.PORT ?? 3000;
 
@@ -9,11 +10,8 @@ async function bootstrap() {
   // abortOnError: false → si algo falla al iniciar, se lanza el error en vez de cortar el proceso.
   const app = await NestFactory.create(AppModule, { abortOnError: false });
 
-  app.enableCors({
-    origin: (process.env.CORS_ORIGIN ?? 'http://localhost:4200')
-      .split(',')
-      .map((o) => o.trim()),
-  });
+  // Solo el front (CORS_ORIGIN) puede llamar a la API desde el navegador.
+  app.enableCors(opcionesCors);
 
   // Valida todos los DTOs: descarta propiedades desconocidas y responde 400 si algo no cumple.
   app.useGlobalPipes(

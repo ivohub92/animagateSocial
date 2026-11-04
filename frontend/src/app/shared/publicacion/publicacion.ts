@@ -21,11 +21,11 @@ export class PublicacionCard {
   private readonly modal = inject(ModalService);
 
   readonly publicacion = input.required<Publicacion>();
-  /** Color del filo izquierdo y del título (el feed los alterna como en el diseño). */
+
   readonly acento = input<'rosa' | 'cyan'>('rosa');
-  /** Se emite con el id cuando la publicación se eliminó, para que la página recargue. */
+
   readonly eliminada = output<string>();
-  /** Se emite cuando el servidor confirmó un me gusta dado o quitado. */
+
   readonly meGustaCambio = output<EstadoMeGusta>();
 
   /** Copia local del estado de me gusta: se actualiza al instante y se revierte si falla. */

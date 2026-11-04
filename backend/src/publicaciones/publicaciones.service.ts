@@ -12,7 +12,7 @@ import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
 import { Publicacion } from './schemas/publicacion.schema.js';
 
-/** Datos del autor que se muestran junto a cada publicación. */
+
 const CAMPOS_AUTOR = 'nombre apellido nombreUsuario imagenPerfil';
 
 type PublicacionLean = Publicacion & { _id: Types.ObjectId; usuario: unknown };
@@ -134,7 +134,7 @@ export class PublicacionesService {
     const id = idUsuarioActual && isValidObjectId(idUsuarioActual) ? idUsuarioActual : null;
     return {
       ...resto,
-      // Las publicaciones creadas antes de existir el puntaje no tienen el campo.
+
       puntaje: resto.puntaje ?? null,
       meGustaPorMi: id ? meGusta.some((u) => String(u) === id) : false,
     };

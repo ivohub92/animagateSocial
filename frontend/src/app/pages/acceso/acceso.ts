@@ -10,10 +10,7 @@ export type Pestana = 'login' | 'registro';
 /** Lo que dura la pantalla de carga con la mascota al cambiar de pestaña (como en el diseño). */
 const DURACION_CARGA_MS = 450;
 
-/**
- * Página única de acceso: "Iniciar sesión" y "Registrarse" son dos pestañas.
- * La pestaña activa viaja en la URL (/login?tab=registro) para poder enlazarla.
- */
+
 @Component({
   selector: 'app-acceso',
   imports: [Icono, LoginForm, RegistroForm],

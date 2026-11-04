@@ -75,19 +75,19 @@ const MAXIMO = 5;
   `,
 })
 export class Estrellas {
-  /** Puntaje elegido (null = sin puntuar). Se usa con [(valor)]. */
+
   readonly valor = model<number | null>(null);
   readonly soloLectura = input(false);
   readonly tam = input(16);
 
   protected readonly numeros = Array.from({ length: MAXIMO }, (_, i) => i + 1);
   protected readonly encima = signal<number | null>(null);
-  /** Mientras el mouse pasa por encima se previsualiza ese puntaje. */
+
   protected readonly mostrado = computed(() => this.encima() ?? this.valor() ?? 0);
 
   protected elegir(n: number): void {
     this.valor.set(this.valor() === n ? null : n);
-    // Sin esto, la estrella bajo el mouse seguiría encendida aunque se haya quitado el puntaje.
+
     this.encima.set(null);
   }
 }

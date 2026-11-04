@@ -3,7 +3,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 /** Al menos 8 caracteres, una mayúscula y un número (misma regla que el backend). */
 export const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-/** Valida que dos controles del grupo tengan el mismo valor. */
+
 export function coincidenValidator(campo: string, confirmacion: string): ValidatorFn {
   return (grupo: AbstractControl): ValidationErrors | null => {
     const a = grupo.get(campo)?.value;
@@ -12,7 +12,7 @@ export function coincidenValidator(campo: string, confirmacion: string): Validat
   };
 }
 
-/** Convierte 'yyyy-mm-dd' en una fecha local (sin corrimientos por zona horaria). */
+
 function parsearFecha(valor: string): Date | null {
   const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor);
   if (!partes) return null;
@@ -20,7 +20,7 @@ function parsearFecha(valor: string): Date | null {
   return isNaN(fecha.getTime()) ? null : fecha;
 }
 
-/** La fecha no puede ser posterior a hoy. */
+
 export function fechaNoFuturaValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
   const fecha = parsearFecha(control.value);
@@ -30,7 +30,7 @@ export function fechaNoFuturaValidator(control: AbstractControl): ValidationErro
   return fecha > hoy ? { fechaFutura: true } : null;
 }
 
-/** El usuario debe tener al menos `minimo` años. */
+
 export function edadMinimaValidator(minimo: number): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;

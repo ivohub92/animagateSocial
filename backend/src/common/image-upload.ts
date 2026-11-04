@@ -15,10 +15,7 @@ export const UPLOADS_DIR = join(process.cwd(), 'uploads');
  */
 export const usaCloudinary = () => Boolean(process.env.CLOUDINARY_URL);
 
-/**
- * La imagen se mantiene en memoria y solo se guarda cuando el resto
- * de los datos ya fueron validados (así no quedan archivos huérfanos).
- */
+
 export const imageUploadOptions: MulterOptions = {
   storage: memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -42,7 +39,7 @@ export async function saveImage(
 }
 
 function subirACloudinary(file: Express.Multer.File, carpeta: string): Promise<string> {
-  // Relee CLOUDINARY_URL ahora: el SDK la lee al importarse, antes de que Nest cargue el .env.
+
   cloudinary.config(true);
   cloudinary.config({ secure: true });
   return new Promise((resolve, reject) => {

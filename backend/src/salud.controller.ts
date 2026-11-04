@@ -2,6 +2,7 @@ import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import type { Response } from 'express';
 import type { Connection } from 'mongoose';
+import { origenesPermitidos } from './common/cors.js';
 import { estadoMongo } from './common/estado-mongo.js';
 
 const ESTADOS = ['desconectado', 'conectado', 'conectando', 'desconectando'];
@@ -32,6 +33,8 @@ export class SaludController {
         MONGODB_URI: Boolean(process.env.MONGODB_URI),
         CORS_ORIGIN: Boolean(process.env.CORS_ORIGIN),
       },
+      // Orígenes que el backend acepta (no es un secreto): sirve para revisar CORS.
+      corsPermitidos: origenesPermitidos(),
     };
   }
 }

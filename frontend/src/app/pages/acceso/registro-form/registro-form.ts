@@ -17,7 +17,7 @@ const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGEN_MB = 5;
 const NIVELES = ['', 'Débil', 'Regular', 'Segura', 'Muy segura'];
 
-/** Campos que se envían al backend (los términos solo se validan en el front). */
+
 const CAMPOS_API = [
   'nombre',
   'apellido',
@@ -29,7 +29,7 @@ const CAMPOS_API = [
   'descripcion',
 ] as const;
 
-/** Pestaña "Registrarse" de la página de acceso. */
+
 @Component({
   selector: 'app-registro-form',
   imports: [ReactiveFormsModule, FechaSelect, Icono],
@@ -41,7 +41,6 @@ export class RegistroForm implements OnDestroy {
   private readonly modal = inject(ModalService);
   private readonly router = inject(Router);
 
-  /** Avisa la vista previa de la foto elegida (la página la muestra en el círculo de la mascota). */
   readonly previewCambio = output<string | null>();
 
   protected readonly enviando = signal(false);

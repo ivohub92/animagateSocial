@@ -30,7 +30,6 @@ export class ModalService {
     this.abrir({ tipo: 'error', titulo, mensaje });
   }
 
-  /** Pide confirmación: la promesa se resuelve en true si el usuario acepta. */
   confirmar(titulo: string, mensaje: string, textoBoton = 'Confirmar'): Promise<boolean> {
     return new Promise((resolver) =>
       this.abrir({
