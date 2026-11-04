@@ -1,0 +1,437 @@
+// Capa de la aplicación sobre el tema AnimeGate (src/styles/animegate.css).
+// Usar siempre sus variables: paneles de vidrio, bordes de 1px y brillos neón.
+
+html,
+body {
+  min-height: 100%;
+}
+
+a {
+  color: var(--anime-cyan);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--anime-cyan);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.muted {
+  color: var(--color-neutral-700);
+}
+
+// Pastilla con punto titilante ("Desktop Web App" en el diseño).
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px;
+  margin-bottom: 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 42, 133, 0.3);
+  background: rgba(255, 42, 133, 0.1);
+  color: var(--anime-pink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+
+  &.cyan {
+    border-color: rgba(0, 240, 255, 0.3);
+    background: rgba(0, 240, 255, 0.08);
+    color: var(--anime-cyan);
+  }
+}
+
+.punto {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+}
+
+.rule {
+  height: 1px;
+  background: #1e293b;
+  margin: 6px 0;
+}
+
+// ---------- Fondo animado (grilla de puntos, esferas de luz y scanlines) ----------
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+
+  .grilla {
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+    background-image: radial-gradient(#3b82f6 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .orbe {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(140px);
+    animation: pulse-glow 3s infinite alternate;
+
+    &.rosa {
+      top: 25%;
+      left: 25%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 42, 133, 0.2);
+    }
+
+    &.cyan {
+      bottom: 25%;
+      right: 25%;
+      transform: translate(50%, 50%);
+      background: rgba(0, 240, 255, 0.2);
+    }
+
+    &.violeta {
+      top: 50%;
+      left: 50%;
+      width: 600px;
+      height: 600px;
+      transform: translate(-50%, -50%);
+      filter: blur(160px);
+      animation: none;
+      background: rgba(139, 92, 246, 0.15);
+    }
+  }
+
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    opacity: 0.25;
+  }
+}
+
+// Todo el contenido va por encima del fondo.
+// La barra queda fija arriba y en una capa superior al contenido: si estuvieran en la
+// misma capa, al scrollear el feed le pasaría por encima y taparía sus botones.
+app-navbar {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.contenido {
+  position: relative;
+  z-index: 1;
+}
+
+// ---------- Formularios ----------
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.field {
+  .hint,
+  .error {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  .hint {
+    color: var(--color-neutral-600);
+  }
+
+  .error {
+    font-weight: 600;
+    color: var(--color-accent-700);
+  }
+}
+
+.input.invalid {
+  border-color: var(--anime-pink);
+  box-shadow: var(--glow-pink);
+}
+
+// Campo con ícono a la izquierda y botón opcional a la derecha (ojo de la contraseña).
+.con-icono {
+  position: relative;
+
+  > app-icono {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    color: #64748b;
+    pointer-events: none;
+  }
+
+  .input {
+    padding-left: 40px;
+  }
+
+  .input:has(+ .ojo) {
+    padding-right: 42px;
+  }
+
+  .ojo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+
+    &:hover {
+      color: #cbd5e1;
+    }
+  }
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-neutral-700);
+  cursor: pointer;
+
+  input {
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    accent-color: var(--anime-pink);
+  }
+}
+
+// ---------- Pantallas con columnas (publicaciones / perfil) ----------
+.cols {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.side,
+.panel {
+  background: rgba(22, 25, 43, 0.75);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.side {
+  position: sticky;
+  top: 88px;
+}
+
+.col-main {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .cols {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .side {
+    position: static;
+  }
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  .title {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 42, 133, 0.5), rgba(0, 240, 255, 0.3), transparent);
+  }
+
+  .meta {
+    font-size: 12px;
+    color: var(--color-neutral-700);
+  }
+}
+
+.side-title {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--anime-cyan);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.stats {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 14px 0;
+  margin-bottom: 16px;
+  border-top: 1px solid #1e293b;
+  text-align: center;
+
+  .num {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--anime-cyan);
+  }
+
+  > :nth-child(2) .num {
+    color: var(--anime-pink);
+  }
+
+  > :nth-child(3) .num {
+    color: #c084fc;
+  }
+
+  .lbl {
+    font-size: 10px;
+    color: var(--color-neutral-700);
+  }
+}
+
+.empty {
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  border: 1px dashed rgba(0, 240, 255, 0.35);
+  background: rgba(15, 23, 42, 0.6);
+
+  h3 {
+    margin: 0 0 8px;
+  }
+
+  p {
+    margin: 0 0 16px;
+    color: var(--color-neutral-700);
+    max-width: 52ch;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Línea "¿Todavía no tenés cuenta? Registrate" al pie de cada pestaña de acceso.
+.cambiar {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-neutral-700);
+}
+
+// ---------- Paneles compartidos por el feed y el perfil ----------
+// Título chico en mayúsculas arriba de cada panel lateral.
+.panel-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+// Panel de KIRA-BOT con un consejo.
+.kira {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-color: rgba(0, 240, 255, 0.3);
+  background: linear-gradient(135deg, var(--anime-card), #0f172a);
+
+  img {
+    flex: none;
+    padding: 3px;
+    border-radius: 50%;
+    border: 1px solid var(--anime-cyan);
+    background: #020617;
+  }
+
+  .kira-nombre {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--anime-cyan);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #cbd5e1;
+  }
+}

@@ -1,7 +1,5 @@
+// El "sticky" lo tiene el host (app-navbar, en styles.scss), así queda por encima del contenido.
 header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
   display: flex;
   align-items: center;
   gap: 28px;

@@ -11,7 +11,7 @@ import { Icono } from '../../shared/icono/icono';
 import { PublicacionCard } from '../../shared/publicacion/publicacion';
 import { NuevaPublicacion } from './nueva-publicacion/nueva-publicacion';
 
-
+/** Cantidad de publicaciones por página. */
 const POR_PAGINA = 5;
 
 /** Frases que KIRA-BOT muestra en el panel de la izquierda (una al azar por visita). */
@@ -84,7 +84,7 @@ export class Publicaciones {
       });
   }
 
-
+  /** El ranking se actualiza junto con la lista (si falla, simplemente no se muestra). */
   private cargarTop(): void {
     this.pedidoTop?.unsubscribe();
     this.pedidoTop = this.servicio.listar('meGusta', 0, 3).subscribe({
@@ -93,9 +93,16 @@ export class Publicaciones {
     });
   }
 
-
+  /**
+   * Un me gusta cambia el orden por popularidad: si el feed está en "Más me gusta" se vuelve
+   * a pedir la página (y con ella el ranking); si está por fecha, solo se refresca el ranking.
+   */
   protected alCambiarMeGusta(): void {
-    this.cargarTop();
+    if (this.orden() === 'meGusta') {
+      this.cargar();
+    } else {
+      this.cargarTop();
+    }
   }
 
   protected cambiarOrden(orden: OrdenPublicaciones): void {
