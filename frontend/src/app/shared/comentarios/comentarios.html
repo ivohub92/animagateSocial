@@ -1,0 +1,53 @@
+<section class="comentarios" aria-label="Comentarios">
+  @if (auth.usuario(); as u) {
+    <!-- (submit) con preventDefault: el form no tiene [formGroup], así que no hay ngSubmit -->
+    <form class="nuevo" (submit)="$event.preventDefault(); comentar()">
+      <app-avatar [usuario]="u" [size]="32" variante="propio" />
+      <div class="campo">
+        <label class="oculto" [for]="'comentario-' + publicacionId()">Escribí un comentario</label>
+        <textarea
+          [id]="'comentario-' + publicacionId()"
+          [formControl]="mensaje"
+          rows="1"
+          [maxLength]="maximo"
+          placeholder="Escribí un comentario…"
+          (keydown.enter)="$event.preventDefault(); comentar()"
+        ></textarea>
+        @if (texto().length > maximo - 50) {
+          <span class="contador">{{ texto().length }} / {{ maximo }}</span>
+        }
+      </div>
+      <button type="submit" class="enviar" [disabled]="enviando() || !texto().trim()" title="Comentar">
+        <app-icono nombre="enviar" [tam]="15" />
+      </button>
+    </form>
+  } @else {
+    <p class="aviso">Iniciá sesión para comentar.</p>
+  }
+
+  @if (cargando()) {
+    <p class="aviso">Cargando comentarios…</p>
+  } @else if (error(); as e) {
+    <p class="aviso error">{{ e }} <button type="button" class="link" (click)="cargar()">Reintentar</button></p>
+  } @else if (comentarios().length === 0) {
+    <p class="aviso">Todavía no hay comentarios. ¡Sé el primero!</p>
+  } @else {
+    <ul>
+      @for (c of comentarios(); track c._id) {
+        <li>
+          <app-avatar [usuario]="c.usuario" [size]="32" [variante]="c.usuario._id === auth.usuario()?._id ? 'propio' : 'otro'" />
+          <div class="burbuja">
+            <div class="cabecera">
+              <span class="autor">{{ c.usuario.nombre }} {{ c.usuario.apellido }}</span>
+              <span class="meta">&#64;{{ c.usuario.nombreUsuario }} · {{ c.createdAt | tiempoRelativo }}</span>
+            </div>
+            <p>{{ c.mensaje }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+    @if (total() > comentarios().length) {
+      <p class="aviso">Se muestran los {{ comentarios().length }} más recientes de {{ total() }}.</p>
+    }
+  }
+</section>

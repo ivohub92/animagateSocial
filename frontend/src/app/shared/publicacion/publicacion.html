@@ -44,6 +44,17 @@
       {{ meGusta().cantidad }} Me gusta
     </button>
 
+    <button
+      type="button"
+      class="ver-comentarios"
+      [class.activo]="mostrarComentarios()"
+      [attr.aria-expanded]="mostrarComentarios()"
+      (click)="mostrarComentarios.set(!mostrarComentarios())"
+    >
+      <app-icono nombre="chat" />
+      {{ cantidadComentarios() }} {{ cantidadComentarios() === 1 ? 'comentario' : 'comentarios' }}
+    </button>
+
     @if (puedeEliminar()) {
       <button type="button" class="eliminar" [disabled]="procesando()" (click)="eliminar()">
         <app-icono nombre="papelera" [tam]="15" />
@@ -51,4 +62,8 @@
       </button>
     }
   </div>
+
+  @if (mostrarComentarios()) {
+    <app-comentarios [publicacionId]="p._id" (comentado)="cantidadComentarios.set(cantidadComentarios() + 1)" />
+  }
 </article>

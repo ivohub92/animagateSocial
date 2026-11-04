@@ -3,10 +3,7 @@ import { Usuario } from '../../core/models';
 
 type DatosAvatar = Pick<Usuario, 'nombre' | 'apellido' | 'imagenPerfil'>;
 
-/**
- * Foto de perfil recortada en un círculo con borde neón o, si no hay foto,
- * un monograma con las iniciales sobre un degradé del tema.
- */
+
 @Component({
   selector: 'app-avatar',
   template: `

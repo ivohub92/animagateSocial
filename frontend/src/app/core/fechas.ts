@@ -1,4 +1,4 @@
-
+/** Edad en años cumplidos a partir de una fecha ISO (se interpreta en UTC, como la guarda el backend). */
 export function calcularEdad(fechaIso: string): number {
   const nac = new Date(fechaIso);
   const hoy = new Date();

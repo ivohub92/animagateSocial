@@ -1,6 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-/** Al menos 8 caracteres, una mayúscula y un número (misma regla que el backend). */
+
 export const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 
@@ -11,7 +11,6 @@ export function coincidenValidator(campo: string, confirmacion: string): Validat
     return a && b && a !== b ? { noCoinciden: true } : null;
   };
 }
-
 
 function parsearFecha(valor: string): Date | null {
   const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor);

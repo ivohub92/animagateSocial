@@ -2,14 +2,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { EstadoMeGusta, OrdenPublicaciones, PaginaPublicaciones, Publicacion } from './models';
+import {
+  Comentario,
+  EstadoMeGusta,
+  OrdenPublicaciones,
+  PaginaComentarios,
+  PaginaPublicaciones,
+  Publicacion,
+} from './models';
 
 @Injectable({ providedIn: 'root' })
 export class PublicacionesService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/publicaciones`;
 
-  /** Lista paginada; con `usuario` trae solo las de esa persona (se usa en Mi perfil). */
+ 
   listar(
     orden: OrdenPublicaciones,
     offset: number,
@@ -21,7 +28,7 @@ export class PublicacionesService {
     return this.http.get<PaginaPublicaciones>(this.url, { params });
   }
 
-  /** FormData con titulo, mensaje e imagen (opcional). */
+
   crear(datos: FormData): Observable<Publicacion> {
     return this.http.post<Publicacion>(this.url, datos);
   }
@@ -36,5 +43,15 @@ export class PublicacionesService {
 
   quitarMeGusta(id: string): Observable<EstadoMeGusta> {
     return this.http.delete<EstadoMeGusta>(`${this.url}/${id}/me-gusta`);
+  }
+
+  /** Comentarios de una publicación, los más recientes primero. */
+  listarComentarios(id: string, offset = 0, limit = 20): Observable<PaginaComentarios> {
+    const params = new HttpParams().set('offset', offset).set('limit', limit);
+    return this.http.get<PaginaComentarios>(`${this.url}/${id}/comentarios`, { params });
+  }
+
+  comentar(id: string, mensaje: string): Observable<Comentario> {
+    return this.http.post<Comentario>(`${this.url}/${id}/comentarios`, { mensaje });
   }
 }

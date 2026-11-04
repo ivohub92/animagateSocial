@@ -11,7 +11,7 @@ export enum Perfil {
 @Schema({
   timestamps: true,
   toJSON: {
-
+    // Nunca exponer la contraseña en las respuestas.
     transform: (_doc, ret: Record<string, unknown>) => {
       delete ret.password;
       delete ret.__v;

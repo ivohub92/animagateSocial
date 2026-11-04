@@ -1,0 +1,146 @@
+.comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(30, 41, 59, 0.8);
+  animation: aparecer 0.25s ease-out both;
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// Campo para comentar: avatar, caja oscura con foco cyan y botón de enviar.
+.nuevo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.campo {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    background: rgba(2, 6, 23, 0.8);
+    color: #e2e8f0;
+    font: inherit;
+    font-size: 13px;
+    resize: vertical;
+    transition: border-color 0.2s;
+
+    &::placeholder {
+      color: #64748b;
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--anime-cyan);
+    }
+  }
+
+  .contador {
+    position: absolute;
+    right: 10px;
+    bottom: -16px;
+    font-size: 10px;
+    color: var(--color-neutral-600);
+  }
+}
+
+.enviar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gradiente-registro);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s, box-shadow 0.2s;
+
+  &:hover:not(:disabled) {
+    box-shadow: var(--glow-cyan);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.burbuja {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 4px 14px 14px 14px;
+  border: 1px solid #1e293b;
+  background: rgba(15, 23, 42, 0.7);
+
+  .cabecera {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 2px;
+  }
+
+  .autor {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .meta {
+    font-size: 11px;
+    color: var(--color-neutral-600);
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #cbd5e1;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+}
+
+.aviso {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-neutral-600);
+
+  &.error {
+    color: var(--color-accent-700);
+  }
+}

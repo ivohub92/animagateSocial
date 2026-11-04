@@ -17,7 +17,6 @@ const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGEN_MB = 5;
 const NIVELES = ['', 'Débil', 'Regular', 'Segura', 'Muy segura'];
 
-
 const CAMPOS_API = [
   'nombre',
   'apellido',
@@ -40,6 +39,7 @@ export class RegistroForm implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly modal = inject(ModalService);
   private readonly router = inject(Router);
+
 
   readonly previewCambio = output<string | null>();
 

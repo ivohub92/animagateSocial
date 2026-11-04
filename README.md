@@ -39,6 +39,8 @@
 | `DELETE /publicaciones/:id` | Baja lógica (`activa = false`), solo el autor o un administrador | 200 · 403 · 404 |
 | `POST /publicaciones/:id/me-gusta` | Da me gusta (uno por usuario) | 201 · 409 si ya lo había dado |
 | `DELETE /publicaciones/:id/me-gusta` | Quita el me gusta, solo si lo había dado | 200 · 409 |
+| `GET /publicaciones/:id/comentarios?offset=0&limit=20` | (Sprint 3) Comentarios de la publicación, los más recientes primero | 200 · 404 · 400 |
+| `POST /publicaciones/:id/comentarios` (`{ mensaje }`, máx. 500) | (Sprint 3) Comenta con el usuario del header; la fecha la pone `createdAt` | 201 · 400 · 401 · 404 |
 
 > **Usuario que hace el pedido (temporal):** hasta el Sprint 3 (JWT), el front envía el id del usuario
 > logueado en el header `X-Usuario-Id` (interceptor `usuario.interceptor.ts`). El backend lo valida en
@@ -53,6 +55,18 @@
 - Caja para publicar (título, mensaje e imagen opcional).
 
 
+### Sprint 2 · publicaciones
 
+`postman/animegate-sprint2.postman_collection.json` tiene **37 consultas** (73 verificaciones) para el
+módulo publicaciones. Usa dos usuarios que crea la carpeta 0 (Ana y Beto) y manda el usuario en el header
+`X-Usuario-Id`.
+
+| Carpeta | Qué prueba |
+|---|---|
+| 0 · Preparación | Salud del backend y registro de Ana y Beto (guarda sus `_id`) |
+| 1 · Alta | 201 con puntaje y sin puntaje (debate), con imagen; 401 sin usuario; 400 por título, mensaje, puntaje y campos no permitidos |
+| 2 · Listado | Orden por fecha por defecto, `offset`/`limit` (paginado), filtro `usuario`; 400 por parámetros inválidos |
+| 3 · Me gusta | 201 al dar, 409 si se repite, `meGustaPorMi`, orden por me gusta, 200 al quitar, 409 si no lo había dado, 401/404/400 |
+| 4 · Baja lógica | 403 si no es el autor, 401, 200 al eliminar, desaparece del listado, 404 al repetir |
 
 

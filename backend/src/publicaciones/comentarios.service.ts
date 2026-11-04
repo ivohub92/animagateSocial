@@ -1,0 +1,70 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import type { UserDocument } from '../users/schemas/user.schema.js';
+import { CrearComentarioDto } from './dto/crear-comentario.dto.js';
+import { ListarComentariosDto } from './dto/listar-comentarios.dto.js';
+import { Comentario } from './schemas/comentario.schema.js';
+import { Publicacion } from './schemas/publicacion.schema.js';
+
+/** Datos del autor que viajan con cada comentario (nunca la contraseña). */
+const CAMPOS_AUTOR = 'nombre apellido nombreUsuario imagenPerfil';
+
+@Injectable()
+export class ComentariosService {
+  constructor(
+    @InjectModel(Comentario.name) private readonly comentarioModel: Model<Comentario>,
+    @InjectModel(Publicacion.name) private readonly publicacionModel: Model<Publicacion>,
+  ) {}
+
+  /** Comentarios de una publicación, los más recientes primero, paginados. */
+  async listar(idPublicacion: string, filtros: ListarComentariosDto) {
+    await this.verificarPublicacion(idPublicacion);
+    const condicion = { publicacion: new Types.ObjectId(idPublicacion) };
+
+    const [items, total] = await Promise.all([
+      this.comentarioModel
+        .find(condicion)
+        .sort({ createdAt: -1 })
+        .skip(filtros.offset)
+        .limit(filtros.limit)
+        .populate('usuario', CAMPOS_AUTOR)
+        .lean()
+        .exec(),
+      this.comentarioModel.countDocuments(condicion).exec(),
+    ]);
+    return { items: items.map(sinVersion), total, offset: filtros.offset, limit: filtros.limit };
+  }
+
+  /** Agrega un comentario con el usuario que lo hizo; la fecha la pone timestamps. */
+  async crear(idPublicacion: string, dto: CrearComentarioDto, autor: UserDocument) {
+    await this.verificarPublicacion(idPublicacion);
+    const creado = await this.comentarioModel.create({
+      publicacion: new Types.ObjectId(idPublicacion),
+      usuario: autor._id,
+      mensaje: dto.mensaje,
+    });
+    // Contador en la publicación, para mostrar "N comentarios" sin contarlos cada vez.
+    await this.publicacionModel
+      .updateOne({ _id: idPublicacion }, { $inc: { cantidadComentarios: 1 } })
+      .exec();
+
+    const comentario = await this.comentarioModel
+      .findById(creado._id)
+      .populate('usuario', CAMPOS_AUTOR)
+      .lean()
+      .exec();
+    return sinVersion(comentario!);
+  }
+
+  /** Solo se comenta (o se leen comentarios) en publicaciones que existen y no fueron dadas de baja. */
+  private async verificarPublicacion(id: string) {
+    const existe = await this.publicacionModel.exists({ _id: id, activa: true }).exec();
+    if (!existe) throw new NotFoundException('La publicación no existe');
+  }
+}
+
+function sinVersion<T extends object>(doc: T) {
+  const { __v: _v, ...resto } = doc as T & { __v?: number };
+  return resto;
+}

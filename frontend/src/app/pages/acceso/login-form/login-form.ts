@@ -6,10 +6,10 @@ import { CargadorService } from '../../../shared/cargador/cargador.service';
 import { Icono } from '../../../shared/icono/icono';
 import { ModalService } from '../../../shared/modal/modal.service';
 
-/** Tiempo mínimo de la pantalla "Entrando a tu cosmo" para que se llegue a ver aunque el login sea instantáneo. */
+
 const DURACION_MINIMA_MS = 1400;
 
-/** Pestaña "Iniciar sesión" de la página de acceso. */
+
 @Component({
   selector: 'app-login-form',
   imports: [ReactiveFormsModule, Icono],
@@ -21,15 +21,14 @@ export class LoginForm {
   private readonly router = inject(Router);
   private readonly cargador = inject(CargadorService);
 
-  /** Pide a la página que muestre la pestaña de registro. */
+
   readonly irARegistro = output<void>();
 
   protected readonly enviando = signal(false);
   protected readonly verPassword = signal(false);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    // En el login solo se exige completar los campos: mostrar las reglas de la
-    // contraseña (o del usuario) daría pistas a quien intenta adivinar una cuenta.
+
     identificador: ['', Validators.required],
     password: ['', Validators.required],
   });

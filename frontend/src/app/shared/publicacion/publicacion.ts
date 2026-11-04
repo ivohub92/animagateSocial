@@ -3,15 +3,16 @@ import { AuthService, mensajeDeError } from '../../core/auth.service';
 import { EstadoMeGusta, Publicacion } from '../../core/models';
 import { PublicacionesService } from '../../core/publicaciones.service';
 import { Avatar } from '../avatar/avatar';
+import { Comentarios } from '../comentarios/comentarios';
 import { Estrellas } from '../estrellas/estrellas';
 import { Icono } from '../icono/icono';
 import { ModalService } from '../modal/modal.service';
 import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
 
-/** Una publicación del listado: autor, contenido, me gusta y eliminar (si es propia). */
+
 @Component({
   selector: 'app-publicacion',
-  imports: [Avatar, TiempoRelativoPipe, Icono, Estrellas],
+  imports: [Avatar, TiempoRelativoPipe, Icono, Estrellas, Comentarios],
   templateUrl: './publicacion.html',
   styleUrl: './publicacion.scss',
 })
@@ -28,12 +29,17 @@ export class PublicacionCard {
 
   readonly meGustaCambio = output<EstadoMeGusta>();
 
-  /** Copia local del estado de me gusta: se actualiza al instante y se revierte si falla. */
+
   protected readonly meGusta = linkedSignal(() => ({
     cantidad: this.publicacion().cantidadMeGusta,
     porMi: this.publicacion().meGustaPorMi,
   }));
   protected readonly procesando = signal(false);
+
+  readonly comentariosAbiertos = input(false);
+  protected readonly mostrarComentarios = linkedSignal(() => this.comentariosAbiertos());
+
+  protected readonly cantidadComentarios = linkedSignal(() => this.publicacion().cantidadComentarios ?? 0);
 
   protected readonly logueado = this.auth.logueado;
   protected readonly esMia = computed(

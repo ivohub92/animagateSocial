@@ -110,7 +110,7 @@ h3 {
 .acciones {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   padding-top: 12px;
   border-top: 1px solid rgba(30, 41, 59, 0.8);
@@ -152,6 +152,17 @@ button {
       filter: drop-shadow(0 0 4px rgba(255, 42, 133, 0.7));
     }
   }
+}
+
+.ver-comentarios {
+  &:hover:not(:disabled),
+  &.activo {
+    color: var(--anime-cyan);
+  }
+}
+
+.eliminar {
+  margin-left: auto; // me gusta y comentarios a la izquierda, eliminar a la derecha
 }
 
 .eliminar:hover:not(:disabled) {

@@ -87,6 +87,7 @@
                   <app-publicacion
                     [publicacion]="p"
                     [acento]="i % 2 === 0 ? 'rosa' : 'cyan'"
+                    [comentariosAbiertos]="true"
                     (eliminada)="cargar()"
                     (meGustaCambio)="cargar()"
                   />
@@ -130,7 +131,7 @@
           <img src="mascota.svg" alt="" width="52" height="52" />
           <div>
             <div class="kira-nombre">KIRA-BOT</div>
-            <p>“Tu perfil muestra tus últimas {{ ultimas }} publicaciones. ¡Seguí sumando me gusta!”</p>
+            <p>“Tu perfil muestra tus últimas {{ ultimas }} publicaciones con sus comentarios. ¡Respondé a tu comunidad!”</p>
           </div>
         </div>
       </aside>

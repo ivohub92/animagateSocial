@@ -21,17 +21,17 @@ export class Acceso {
   private readonly router = inject(Router);
   private readonly cargador = inject(CargadorService);
 
-  /** Query param ?tab=… (llega por withComponentInputBinding). */
+
   readonly tab = input<string>();
 
   protected readonly pestana = computed<Pestana>(() =>
     this.tab() === 'registro' ? 'registro' : 'login',
   );
 
-  /** Foto elegida en el registro: reemplaza a la mascota del panel izquierdo. */
+
   protected readonly fotoElegida = signal<string | null>(null);
 
-  /** Mientras se cambia de pestaña se muestra la pantalla de carga con KIRA-BOT. */
+
   private readonly cargando = signal(false);
   private temporizador?: ReturnType<typeof setTimeout>;
 

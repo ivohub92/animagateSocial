@@ -139,7 +139,15 @@ a {
 }
 
 // Todo el contenido va por encima del fondo.
-app-navbar,
+// La barra queda fija arriba y en una capa superior al contenido: si estuvieran en la
+// misma capa, al scrollear el feed le pasaría por encima y taparía sus botones.
+app-navbar {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
 .contenido {
   position: relative;
   z-index: 1;

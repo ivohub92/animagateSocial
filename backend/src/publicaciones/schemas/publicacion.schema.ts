@@ -18,7 +18,6 @@ export class Publicacion {
   @Prop({ type: String, default: null })
   imagen: string | null;
 
-
   @Prop({ type: Number, min: 1, max: 5, default: null })
   puntaje: number | null;
 
@@ -26,8 +25,13 @@ export class Publicacion {
   @Prop({ type: [{ type: Types.ObjectId, ref: User.name }], default: [] })
   meGusta: Types.ObjectId[];
 
+
   @Prop({ default: 0 })
   cantidadMeGusta: number;
+
+
+  @Prop({ default: 0 })
+  cantidadComentarios: number;
 
 
   @Prop({ default: true })

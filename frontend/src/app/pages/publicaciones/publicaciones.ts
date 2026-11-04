@@ -14,7 +14,7 @@ import { NuevaPublicacion } from './nueva-publicacion/nueva-publicacion';
 /** Cantidad de publicaciones por página. */
 const POR_PAGINA = 5;
 
-/** Frases que KIRA-BOT muestra en el panel de la izquierda (una al azar por visita). */
+
 const CONSEJOS_KIRA = [
   'Si tu reseña tiene spoilers, avisalo en el título. ¡La comunidad te lo agradece!',
   'Ordená por "Más me gusta" para ver los debates más calientes del momento.',
@@ -58,7 +58,7 @@ export class Publicaciones {
     this.cargar();
   }
 
-  /** Trae la página actual con el orden elegido. Si había un pedido en curso, lo cancela. */
+
   protected cargar(): void {
     this.pedido?.unsubscribe();
     this.cargando.set(true);
@@ -93,10 +93,7 @@ export class Publicaciones {
     });
   }
 
-  /**
-   * Un me gusta cambia el orden por popularidad: si el feed está en "Más me gusta" se vuelve
-   * a pedir la página (y con ella el ranking); si está por fecha, solo se refresca el ranking.
-   */
+
   protected alCambiarMeGusta(): void {
     if (this.orden() === 'meGusta') {
       this.cargar();
@@ -118,7 +115,7 @@ export class Publicaciones {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /** Una publicación nueva aparece arriba de todo con el orden por fecha. */
+
   protected alPublicar(): void {
     this.orden.set('fecha');
     this.numeroPagina.set(0);

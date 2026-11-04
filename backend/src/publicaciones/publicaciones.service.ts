@@ -12,7 +12,7 @@ import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
 import { Publicacion } from './schemas/publicacion.schema.js';
 
-
+/** Datos del autor que se muestran junto a cada publicación. */
 const CAMPOS_AUTOR = 'nombre apellido nombreUsuario imagenPerfil';
 
 type PublicacionLean = Publicacion & { _id: Types.ObjectId; usuario: unknown };
@@ -64,7 +64,7 @@ export class PublicacionesService {
     };
   }
 
-
+  /** Baja lógica: solo el autor o un administrador. */
   async eliminar(id: string, usuario: UserDocument) {
     const publicacion = await this.publicacionModel.findOne({ _id: id, activa: true }).exec();
     if (!publicacion) throw new NotFoundException('La publicación no existe');
@@ -79,7 +79,7 @@ export class PublicacionesService {
     return { mensaje: 'Publicación eliminada' };
   }
 
-
+  /** Agrega un me gusta. La condición del update garantiza que sea uno por usuario. */
   async darMeGusta(id: string, usuario: UserDocument) {
     const { modifiedCount } = await this.publicacionModel
       .updateOne(
@@ -94,7 +94,7 @@ export class PublicacionesService {
     return this.estadoMeGusta(id, true);
   }
 
-
+  /** Quita un me gusta, solo si el usuario lo había dado. */
   async quitarMeGusta(id: string, usuario: UserDocument) {
     const { modifiedCount } = await this.publicacionModel
       .updateOne(
@@ -128,14 +128,15 @@ export class PublicacionesService {
     return this.aRespuesta(p!, idUsuarioActual);
   }
 
-
+  /** Arma la respuesta: no expone la lista de quiénes dieron me gusta, solo si fui yo. */
   private aRespuesta(p: PublicacionLean, idUsuarioActual?: string) {
     const { meGusta, activa: _activa, __v: _v, ...resto } = p as PublicacionLean & { __v?: number };
     const id = idUsuarioActual && isValidObjectId(idUsuarioActual) ? idUsuarioActual : null;
     return {
       ...resto,
-
+      // Las publicaciones creadas antes de existir el puntaje no tienen el campo.
       puntaje: resto.puntaje ?? null,
+      cantidadComentarios: resto.cantidadComentarios ?? 0,
       meGustaPorMi: id ? meGusta.some((u) => String(u) === id) : false,
     };
   }

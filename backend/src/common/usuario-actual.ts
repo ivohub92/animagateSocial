@@ -9,7 +9,11 @@ import { isValidObjectId } from 'mongoose';
 import { UserDocument } from '../users/schemas/user.schema.js';
 import { UsersService } from '../users/users.service.js';
 
-
+/**
+ * Header con el que el front indica qué usuario hace el pedido.
+ * Es TEMPORAL (Sprint 2): en el Sprint 3 se reemplaza por el token JWT del header
+ * Authorization, y solo cambia este archivo.
+ */
 export const HEADER_USUARIO = 'x-usuario-id';
 
 type RequestConUsuario = { headers: Record<string, string | undefined>; usuario?: UserDocument };
@@ -31,7 +35,7 @@ export class UsuarioActualGuard implements CanActivate {
   }
 }
 
-
+/** Inyecta en el método del controlador el usuario que dejó el guard. */
 export const UsuarioActual = createParamDecorator(
   (_data: unknown, context: ExecutionContext) =>
     context.switchToHttp().getRequest<RequestConUsuario>().usuario,
