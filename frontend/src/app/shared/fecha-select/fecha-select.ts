@@ -9,11 +9,7 @@ const ANIOS_HACIA_ATRAS = 120;
 
 const dosDigitos = (n: number) => String(n).padStart(2, '0');
 
-/**
- * Selector de fecha con tres desplegables (día / mes / año) que se usa como un
- * FormControl más (formControlName). Evita recorrer años en el calendario nativo
- * y no ofrece fechas futuras. Su valor es 'yyyy-mm-dd', o '' si está incompleta.
- */
+
 @Component({
   selector: 'app-fecha-select',
   templateUrl: './fecha-select.html',
@@ -23,7 +19,7 @@ const dosDigitos = (n: number) => String(n).padStart(2, '0');
   ],
 })
 export class FechaSelect implements ControlValueAccessor {
-  /** id del primer desplegable, para que el <label for> del formulario lo enfoque. */
+
   readonly inputId = input<string>('');
   readonly invalido = input(false);
 
@@ -39,7 +35,7 @@ export class FechaSelect implements ControlValueAccessor {
     (_, i) => this.hoy.getFullYear() - i,
   );
 
-  /** En el año actual solo se ofrecen los meses que ya llegaron. */
+
   protected readonly meses = computed(() => {
     const tope = this.anio() === this.hoy.getFullYear() ? this.hoy.getMonth() + 1 : 12;
     return MESES.slice(0, tope).map((nombre, i) => ({ numero: i + 1, nombre }));
