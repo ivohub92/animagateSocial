@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import type { UserDocument } from '../users/schemas/user.schema.js';
 import { CrearComentarioDto } from './dto/crear-comentario.dto.js';
+import { EditarComentarioDto } from './dto/editar-comentario.dto.js';
 import { ListarComentariosDto } from './dto/listar-comentarios.dto.js';
 import { Comentario } from './schemas/comentario.schema.js';
 import { Publicacion } from './schemas/publicacion.schema.js';
@@ -55,6 +56,34 @@ export class ComentariosService {
       .lean()
       .exec();
     return sinVersion(comentario!);
+  }
+
+  /** PUT: cambia el mensaje y marca modificado: true. Solo quien escribió el comentario. */
+  async editar(
+    idPublicacion: string,
+    idComentario: string,
+    dto: EditarComentarioDto,
+    usuario: UserDocument,
+  ) {
+    await this.verificarPublicacion(idPublicacion);
+    const comentario = await this.comentarioModel
+      .findOne({ _id: idComentario, publicacion: new Types.ObjectId(idPublicacion) })
+      .exec();
+    if (!comentario) throw new NotFoundException('El comentario no existe');
+    if (String(comentario.usuario) !== String(usuario._id)) {
+      throw new ForbiddenException('Solo quien escribió el comentario puede editarlo');
+    }
+
+    comentario.mensaje = dto.mensaje;
+    comentario.modificado = true;
+    await comentario.save();
+
+    const editado = await this.comentarioModel
+      .findById(comentario._id)
+      .populate('usuario', CAMPOS_AUTOR)
+      .lean()
+      .exec();
+    return sinVersion(editado!);
   }
 
   /** Solo se comenta (o se leen comentarios) en publicaciones que existen y no fueron dadas de baja. */

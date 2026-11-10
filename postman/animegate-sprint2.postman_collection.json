@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AnimeGate · Sprint 2 (publicaciones)",
-    "description": "Consultas del módulo publicaciones del Sprint 2.\n\n• Cambiar la variable baseUrl: http://localhost:3000 en local, o la URL de Render.\n• Correr con \"Run collection\" en orden: la carpeta 0 crea los usuarios y las siguientes usan sus ids.\n• El usuario que hace cada pedido va en el header X-Usuario-Id (temporal: en el Sprint 3 se reemplaza por JWT).\n• \"Crear con imagen\" necesita elegir el archivo a mano en Body (sacalo del Runner o elegilo antes).",
+    "description": "Consultas del módulo publicaciones del Sprint 2.\n\n• Cambiar la variable baseUrl: http://localhost:3000 en local, o la URL de Render.\n• Correr con \"Run collection\" en orden: la carpeta 0 crea los usuarios y las siguientes usan sus ids.\n• Cada pedido se identifica con el token JWT del usuario (Authorization: Bearer), que guarda la carpeta 0.\n• El token dura 15 minutos: si pasan más, volvé a correr la carpeta 0.\n• \"Crear con imagen\" necesita elegir el archivo a mano en Body (sacalo del Runner o elegilo antes).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -32,6 +32,18 @@
     {
       "key": "idFalso",
       "value": "000000000000000000000000"
+    },
+    {
+      "key": "tokenAna",
+      "value": ""
+    },
+    {
+      "key": "tokenBeto",
+      "value": ""
+    },
+    {
+      "key": "tokenFalso",
+      "value": "esto.no.es.un.token"
     }
   ],
   "item": [
@@ -63,7 +75,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/auth/registro",
-            "description": "Crea el usuario Ana con datos únicos y guarda su _id en {{idAna}}.",
+            "description": "Crea el usuario Ana con datos únicos y guarda su _id y su token JWT.",
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -112,7 +124,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('idAna', pm.response.json()._id);"
+                  "pm.collectionVariables.set('idAna', pm.response.json().usuario._id);",
+                  "pm.collectionVariables.set('tokenAna', pm.response.json().token);"
                 ]
               }
             }
@@ -123,7 +136,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/auth/registro",
-            "description": "Crea el usuario Beto con datos únicos y guarda su _id en {{idBeto}}.",
+            "description": "Crea el usuario Beto con datos únicos y guarda su _id y su token JWT.",
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -172,7 +185,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('idBeto', pm.response.json()._id);"
+                  "pm.collectionVariables.set('idBeto', pm.response.json().usuario._id);",
+                  "pm.collectionVariables.set('tokenBeto', pm.response.json().token);"
                 ]
               }
             }
@@ -182,7 +196,7 @@
     },
     {
       "name": "1 · Alta (POST /publicaciones)",
-      "description": "multipart/form-data con titulo, mensaje, imagen (archivo, opcional) y puntaje (1 a 5, opcional). El usuario que publica va en el header X-Usuario-Id (temporal hasta el JWT del Sprint 3).",
+      "description": "multipart/form-data con titulo, mensaje, imagen (archivo, opcional) y puntaje (1 a 5, opcional). El usuario que publica se identifica con su token JWT en el header Authorization.",
       "item": [
         {
           "name": "Crear reseña con puntaje (201)",
@@ -192,8 +206,8 @@
             "description": "Ana publica una reseña con 4 estrellas. Queda relacionada a su usuario (usuario viene completo, sin contraseña).",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -245,8 +259,8 @@
             "description": "Beto publica un debate: sin puntaje → puntaje null.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ],
             "body": {
@@ -287,8 +301,8 @@
             "description": "ANTES DE ENVIAR: en Body, fila imagen (tipo File) → Select Files → elegir una JPG/PNG (máx. 5 MB). La imagen se guarda (Cloudinary o /uploads) y se devuelve su URL.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -331,7 +345,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/publicaciones",
-            "description": "Sin el header X-Usuario-Id no se puede publicar.",
+            "description": "Sin el token (header Authorization) no se puede publicar.",
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -362,15 +376,15 @@
           ]
         },
         {
-          "name": "Usuario inexistente (401)",
+          "name": "Token inválido (401)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/publicaciones",
-            "description": "Header con un id con formato válido pero que no es de ningún usuario.",
+            "description": "Authorization con un token que no es válido (firma o formato) → 401.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idFalso}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenFalso}}"
               }
             ],
             "body": {
@@ -409,8 +423,8 @@
             "description": "Body vacío → 400 con los campos obligatorios.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -440,8 +454,8 @@
             "description": "Título de 101 caracteres → 400.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -481,8 +495,8 @@
             "description": "puntaje = 6 → 400 (va de 1 a 5).",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -527,8 +541,8 @@
             "description": "puntaje = \"muy bueno\" → 400.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -572,8 +586,8 @@
             "description": "Mandar cantidadMeGusta=999: el ValidationPipe rechaza campos que no están en el DTO.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ],
             "body": {
@@ -799,8 +813,8 @@
             "description": "Beto le da me gusta a la reseña de Ana.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -825,8 +839,8 @@
             "description": "El mismo usuario no puede dar dos me gusta a la misma publicación.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -851,8 +865,8 @@
             "description": "Con el header de Beto, meGustaPorMi es true en la reseña de Ana.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -919,8 +933,8 @@
             "description": "Id con formato válido que no existe → 404.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -945,8 +959,8 @@
             "description": "Id \"abc\" → 400.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -971,8 +985,8 @@
             "description": "Beto lo había dado, así que lo puede quitar.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -997,8 +1011,8 @@
             "description": "Ya lo quitó: no se puede quitar de nuevo.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -1029,8 +1043,8 @@
             "description": "Ana intenta eliminar el debate de Beto → 403.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ]
           },
@@ -1074,8 +1088,8 @@
             "description": "Ana elimina su reseña.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ]
           },
@@ -1120,8 +1134,8 @@
             "description": "Ya está dada de baja → 404.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ]
           },
@@ -1145,8 +1159,8 @@
             "description": "Las publicaciones dadas de baja no aceptan me gusta.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idBeto}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
               }
             ]
           },
@@ -1170,8 +1184,8 @@
             "description": "Id \"abc\" → 400.",
             "header": [
               {
-                "key": "X-Usuario-Id",
-                "value": "{{idAna}}"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
               }
             ]
           },

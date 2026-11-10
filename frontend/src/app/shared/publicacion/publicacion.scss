@@ -168,3 +168,53 @@ button {
 .eliminar:hover:not(:disabled) {
   color: #f87171;
 }
+
+// El título lleva a la página de la publicación.
+.titulo {
+  color: inherit;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+// Página de la publicación: todo un poco más grande.
+article.grande {
+  gap: 16px;
+  padding: 28px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    overflow-wrap: anywhere;
+  }
+
+  &.rosa h1 {
+    color: var(--anime-cyan);
+  }
+
+  &.cyan h1 {
+    color: var(--anime-pink);
+  }
+
+  .texto {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .foto {
+    aspect-ratio: auto;
+    max-height: 70vh;
+
+    img {
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+    }
+  }
+
+  @media (max-width: 560px) {
+    padding: 18px;
+  }
+}

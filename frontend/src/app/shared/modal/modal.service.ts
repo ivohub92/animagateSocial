@@ -30,14 +30,20 @@ export class ModalService {
   }
 
 
-  confirmar(titulo: string, mensaje: string, textoBoton = 'Confirmar'): Promise<boolean> {
+  confirmar(
+    titulo: string,
+    mensaje: string,
+    textoBoton = 'Confirmar',
+    tipo: TipoModal = 'confirmacion',
+    textoCancelar = 'Cancelar',
+  ): Promise<boolean> {
     return new Promise((resolver) =>
       this.abrir({
-        tipo: 'confirmacion',
+        tipo,
         titulo,
         mensaje,
         textoBoton,
-        textoCancelar: 'Cancelar',
+        textoCancelar,
         alCerrar: () => resolver(true),
         alCancelar: () => resolver(false),
       }),

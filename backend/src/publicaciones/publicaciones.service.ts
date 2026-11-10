@@ -64,6 +64,17 @@ export class PublicacionesService {
     };
   }
 
+  /** Una publicación activa, con su autor; 404 si no existe o fue dada de baja. */
+  async obtener(id: string, idUsuarioActual?: string) {
+    const p = await this.publicacionModel
+      .findOne({ _id: id, activa: true })
+      .populate('usuario', CAMPOS_AUTOR)
+      .lean<PublicacionLean>()
+      .exec();
+    if (!p) throw new NotFoundException('La publicación no existe');
+    return this.aRespuesta(p, idUsuarioActual);
+  }
+
   /** Baja lógica: solo el autor o un administrador. */
   async eliminar(id: string, usuario: UserDocument) {
     const publicacion = await this.publicacionModel.findOne({ _id: id, activa: true }).exec();

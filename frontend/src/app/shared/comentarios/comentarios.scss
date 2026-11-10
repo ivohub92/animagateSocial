@@ -144,3 +144,94 @@ li {
     color: var(--color-accent-700);
   }
 }
+
+// Marca de comentario editado y botón para editar los propios.
+.editado {
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(139, 92, 246, 0.12);
+  color: #c4b5fd;
+  font-size: 10px;
+  font-style: italic;
+}
+
+.editar {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-neutral-600);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--anime-cyan);
+  }
+}
+
+.edicion {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+
+  textarea {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--anime-cyan);
+    border-radius: 10px;
+    background: rgba(2, 6, 23, 0.8);
+    color: #e2e8f0;
+    font: inherit;
+    font-size: 13px;
+    resize: vertical;
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--glow-cyan);
+    }
+  }
+
+  .botones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+
+    .btn {
+      padding: 6px 12px;
+      font-size: 11px;
+    }
+
+    .link {
+      font-size: 12px;
+    }
+  }
+}
+
+.cargar-mas {
+  align-self: center;
+  gap: 6px;
+
+  small {
+    font-family: var(--font-body);
+    font-weight: 400;
+    text-transform: none;
+    color: var(--color-neutral-600);
+  }
+}
+
+.ver-todos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+}

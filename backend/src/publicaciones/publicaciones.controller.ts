@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   Param,
   Post,
   Query,
@@ -14,7 +13,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { imageUploadOptions } from '../common/image-upload.js';
 import { ParseObjectIdPipe } from '../common/parse-object-id.pipe.js';
-import { HEADER_USUARIO, UsuarioActual, UsuarioActualGuard } from '../common/usuario-actual.js';
+import {
+  UsuarioActual,
+  UsuarioActualGuard,
+  UsuarioOpcionalGuard,
+} from '../common/usuario-actual.js';
 import type { UserDocument } from '../users/schemas/user.schema.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
@@ -24,10 +27,18 @@ import { PublicacionesService } from './publicaciones.service.js';
 export class PublicacionesController {
   constructor(private readonly publicacionesService: PublicacionesService) {}
 
-  /** GET /publicaciones?orden=fecha|meGusta&offset=0&limit=10&usuario=<id> → 200 */
+  /** GET /publicaciones?orden=fecha|meGusta&offset=0&limit=10&usuario=<id> → 200 (el token es opcional) */
   @Get()
-  listar(@Query() filtros: ListarPublicacionesDto, @Headers(HEADER_USUARIO) idUsuario?: string) {
-    return this.publicacionesService.listar(filtros, idUsuario);
+  @UseGuards(UsuarioOpcionalGuard)
+  listar(@Query() filtros: ListarPublicacionesDto, @UsuarioActual() usuario?: UserDocument) {
+    return this.publicacionesService.listar(filtros, usuario ? String(usuario._id) : undefined);
+  }
+
+  /** GET /publicaciones/:id → 200 con una publicación (para verla en grande), 404 si no existe */
+  @Get(':id')
+  @UseGuards(UsuarioOpcionalGuard)
+  obtener(@Param('id', ParseObjectIdPipe) id: string, @UsuarioActual() usuario?: UserDocument) {
+    return this.publicacionesService.obtener(id, usuario ? String(usuario._id) : undefined);
   }
 
   /** POST /publicaciones (multipart: titulo, mensaje, imagen opcional) → 201 */

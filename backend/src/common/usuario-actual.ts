@@ -5,32 +5,65 @@ import {
   UnauthorizedException,
   createParamDecorator,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { isValidObjectId } from 'mongoose';
+import { PayloadToken, SESION_INVALIDA, SIN_SESION, tokenDelHeader } from '../auth/token.js';
 import { UserDocument } from '../users/schemas/user.schema.js';
 import { UsersService } from '../users/users.service.js';
 
-/**
- * Header con el que el front indica qué usuario hace el pedido.
- * Es TEMPORAL (Sprint 2): en el Sprint 3 se reemplaza por el token JWT del header
- * Authorization, y solo cambia este archivo.
- */
-export const HEADER_USUARIO = 'x-usuario-id';
-
 type RequestConUsuario = { headers: Record<string, string | undefined>; usuario?: UserDocument };
 
-/** Exige un usuario válido y activo; si no lo hay, responde 401. */
+/**
+ * Lee el token JWT del header Authorization, lo verifica (firma y vencimiento) y busca al
+ * usuario. Devuelve null si no hay token o no sirve.
+ */
+async function usuarioDelToken(
+  req: RequestConUsuario,
+  jwt: JwtService,
+  usuarios: UsersService,
+): Promise<{ usuario: UserDocument | null; habiaToken: boolean }> {
+  const token = tokenDelHeader(req.headers.authorization);
+  if (!token) return { usuario: null, habiaToken: false };
+  try {
+    const payload = await jwt.verifyAsync<PayloadToken>(token);
+    const usuario = isValidObjectId(payload.sub) ? await usuarios.findById(payload.sub) : null;
+    return { usuario: usuario?.activo ? usuario : null, habiaToken: true };
+  } catch {
+    return { usuario: null, habiaToken: true }; // firma inválida o token vencido
+  }
+}
+
+/** Exige un token válido de un usuario activo; si no, responde 401. */
 @Injectable()
 export class UsuarioActualGuard implements CanActivate {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly jwt: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<RequestConUsuario>();
-    const id = req.headers[HEADER_USUARIO];
-    const usuario = id && isValidObjectId(id) ? await this.usersService.findById(id) : null;
-    if (!usuario || !usuario.activo) {
-      throw new UnauthorizedException('Tenés que iniciar sesión para hacer esto');
-    }
+    const { usuario, habiaToken } = await usuarioDelToken(req, this.jwt, this.usersService);
+    if (!usuario) throw new UnauthorizedException(habiaToken ? SESION_INVALIDA : SIN_SESION);
     req.usuario = usuario;
+    return true;
+  }
+}
+
+/**
+ * Para rutas públicas que cambian un poco si hay sesión (por ejemplo, meGustaPorMi en el
+ * listado): si el token sirve deja el usuario; si no, sigue sin usuario y nunca responde 401.
+ */
+@Injectable()
+export class UsuarioOpcionalGuard implements CanActivate {
+  constructor(
+    private readonly jwt: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const req = context.switchToHttp().getRequest<RequestConUsuario>();
+    req.usuario = (await usuarioDelToken(req, this.jwt, this.usersService)).usuario ?? undefined;
     return true;
   }
 }

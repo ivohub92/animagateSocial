@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ParseObjectIdPipe } from '../common/parse-object-id.pipe.js';
 import { UsuarioActual, UsuarioActualGuard } from '../common/usuario-actual.js';
 import type { UserDocument } from '../users/schemas/user.schema.js';
 import { ComentariosService } from './comentarios.service.js';
 import { CrearComentarioDto } from './dto/crear-comentario.dto.js';
+import { EditarComentarioDto } from './dto/editar-comentario.dto.js';
 import { ListarComentariosDto } from './dto/listar-comentarios.dto.js';
 
 /** Comentarios de una publicación: /publicaciones/:publicacionId/comentarios */
@@ -29,5 +30,17 @@ export class ComentariosController {
     @UsuarioActual() usuario: UserDocument,
   ) {
     return this.comentariosService.crear(publicacionId, dto, usuario);
+  }
+
+  /** PUT /:id { mensaje } → 200 con el comentario y modificado: true; 403 si no es tuyo; 404 si no existe */
+  @Put(':id')
+  @UseGuards(UsuarioActualGuard)
+  editar(
+    @Param('publicacionId', ParseObjectIdPipe) publicacionId: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() dto: EditarComentarioDto,
+    @UsuarioActual() usuario: UserDocument,
+  ) {
+    return this.comentariosService.editar(publicacionId, id, dto, usuario);
   }
 }

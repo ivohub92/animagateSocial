@@ -1,0 +1,19 @@
+<div class="detalle">
+  <a routerLink="/publicaciones" class="volver">
+    <app-icono nombre="flecha-izq" [tam]="14" />
+    Volver al feed
+  </a>
+
+  @if (publicacion(); as p) {
+    <app-publicacion [publicacion]="p" [grande]="true" [comentariosAbiertos]="true" (eliminada)="alEliminar()" />
+  } @else if (error(); as e) {
+    <div class="empty">
+      <div class="kicker"><span class="punto"></span>Publicación</div>
+      <h3>No se pudo mostrar la publicación</h3>
+      <p>{{ e }}</p>
+      <a routerLink="/publicaciones" class="btn btn-primary">Ir al feed</a>
+    </div>
+  } @else {
+    <p class="muted">Cargando publicación…</p>
+  }
+</div>

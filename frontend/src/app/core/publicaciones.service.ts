@@ -54,4 +54,14 @@ export class PublicacionesService {
   comentar(id: string, mensaje: string): Observable<Comentario> {
     return this.http.post<Comentario>(`${this.url}/${id}/comentarios`, { mensaje });
   }
+
+  /** PUT: cambia el mensaje; el back lo devuelve con modificado: true. */
+  editarComentario(id: string, idComentario: string, mensaje: string): Observable<Comentario> {
+    return this.http.put<Comentario>(`${this.url}/${id}/comentarios/${idComentario}`, { mensaje });
+  }
+
+  /** Una publicación sola (para verla en grande). */
+  obtener(id: string): Observable<Publicacion> {
+    return this.http.get<Publicacion>(`${this.url}/${id}`);
+  }
 }

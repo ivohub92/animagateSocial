@@ -35,19 +35,60 @@
     <ul>
       @for (c of comentarios(); track c._id) {
         <li>
-          <app-avatar [usuario]="c.usuario" [size]="32" [variante]="c.usuario._id === auth.usuario()?._id ? 'propio' : 'otro'" />
+          <app-avatar [usuario]="c.usuario" [size]="32" [variante]="esMio(c) ? 'propio' : 'otro'" />
           <div class="burbuja">
             <div class="cabecera">
               <span class="autor">{{ c.usuario.nombre }} {{ c.usuario.apellido }}</span>
               <span class="meta">&#64;{{ c.usuario.nombreUsuario }} · {{ c.createdAt | tiempoRelativo }}</span>
+              @if (c.modificado) {
+                <span class="editado" title="El autor editó este comentario">editado</span>
+              }
+              @if (esMio(c) && editandoId() !== c._id) {
+                <button type="button" class="editar" (click)="empezarEdicion(c)">
+                  <app-icono nombre="lapiz" [tam]="12" />
+                  Editar
+                </button>
+              }
             </div>
-            <p>{{ c.mensaje }}</p>
+
+            @if (editandoId() === c._id) {
+              <!-- (submit) con preventDefault: el form no tiene [formGroup], así que no hay ngSubmit -->
+              <form class="edicion" (submit)="$event.preventDefault(); guardarEdicion(c)">
+                <label class="oculto" [for]="'edicion-' + c._id">Editar comentario</label>
+                <textarea
+                  [id]="'edicion-' + c._id"
+                  [formControl]="edicion"
+                  rows="2"
+                  [maxLength]="maximo"
+                  (keydown.escape)="cancelarEdicion()"
+                ></textarea>
+                <div class="botones">
+                  <button type="button" class="link" (click)="cancelarEdicion()">Cancelar</button>
+                  <button type="submit" class="btn btn-cyan" [disabled]="guardando() || !textoEdicion().trim()">
+                    {{ guardando() ? 'Guardando…' : 'Guardar' }}
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <p>{{ c.mensaje }}</p>
+            }
           </div>
         </li>
       }
     </ul>
-    @if (total() > comentarios().length) {
-      <p class="aviso">Se muestran los {{ comentarios().length }} más recientes de {{ total() }}.</p>
+
+    @if (hayMas()) {
+      @if (modo() === 'completo') {
+        <button type="button" class="btn btn-secondary cargar-mas" [disabled]="cargandoMas()" (click)="cargarMas()">
+          {{ cargandoMas() ? 'Cargando…' : 'Cargar más comentarios' }}
+          <small>({{ comentarios().length }} de {{ total() }})</small>
+        </button>
+      } @else {
+        <a class="ver-todos" [routerLink]="['/publicaciones', publicacionId()]">
+          Ver los {{ total() }} comentarios
+          <app-icono nombre="flecha-der" [tam]="13" />
+        </a>
+      }
     }
   }
 </section>

@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AuthService, mensajeDeError } from '../../core/auth.service';
 import { EstadoMeGusta, Publicacion } from '../../core/models';
 import { PublicacionesService } from '../../core/publicaciones.service';
@@ -12,7 +13,7 @@ import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
 
 @Component({
   selector: 'app-publicacion',
-  imports: [Avatar, TiempoRelativoPipe, Icono, Estrellas, Comentarios],
+  imports: [RouterLink, Avatar, TiempoRelativoPipe, Icono, Estrellas, Comentarios],
   templateUrl: './publicacion.html',
   styleUrl: './publicacion.scss',
 })
@@ -24,6 +25,8 @@ export class PublicacionCard {
   readonly publicacion = input.required<Publicacion>();
 
   readonly acento = input<'rosa' | 'cyan'>('rosa');
+  /** Versión grande, para la página de la publicación: comentarios completos con "Cargar más". */
+  readonly grande = input(false);
 
   readonly eliminada = output<string>();
 

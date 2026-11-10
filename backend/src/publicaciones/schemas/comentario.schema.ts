@@ -17,6 +17,10 @@ export class Comentario {
   @Prop({ required: true, trim: true })
   mensaje: string;
 
+  /** true cuando el autor editó el comentario (el front muestra "editado"). */
+  @Prop({ default: false })
+  modificado: boolean;
+
   createdAt: Date;
 }
 

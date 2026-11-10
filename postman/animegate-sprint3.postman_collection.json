@@ -1,0 +1,990 @@
+{
+  "info": {
+    "name": "AnimeGate · Sprint 3 (JWT y comentarios)",
+    "description": "Consultas del Sprint 3: autenticación con JWT y comentarios.\n\n• Cambiar la variable baseUrl: http://localhost:3000 en local, o la URL de Render.\n• Correr con \"Run collection\" en orden: la carpeta 0 crea los usuarios y guarda sus tokens.\n• Los tokens duran 15 minutos: si pasa más tiempo, volvé a correr la carpeta 0.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "usuarioAna",
+      "value": ""
+    },
+    {
+      "key": "usuarioBeto",
+      "value": ""
+    },
+    {
+      "key": "idAna",
+      "value": ""
+    },
+    {
+      "key": "idBeto",
+      "value": ""
+    },
+    {
+      "key": "tokenAna",
+      "value": ""
+    },
+    {
+      "key": "tokenBeto",
+      "value": ""
+    },
+    {
+      "key": "tokenManipulado",
+      "value": ""
+    },
+    {
+      "key": "idPub",
+      "value": ""
+    },
+    {
+      "key": "idComentarioBeto",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0 · Preparación",
+      "description": "Crea a Ana y a Beto (con sus tokens) y una publicación de Ana.",
+      "item": [
+        {
+          "name": "Salud del backend (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/",
+            "description": "El backend tiene que estar conectado a MongoDB.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar a Ana (201)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Crea a Ana con datos únicos. La respuesta es { usuario, token }: se guardan su _id y su token.",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Ana",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "{{usuarioAna}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "{{usuarioAna}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Clave1234",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "Clave1234",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('usuarioAna', 'ana' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json();",
+                  "pm.test('Devuelve usuario y token', () => { pm.expect(r.usuario._id).to.be.a('string'); pm.expect(r.token.split('.')).to.have.length(3); });",
+                  "pm.collectionVariables.set('idAna', r.usuario._id);",
+                  "pm.collectionVariables.set('tokenAna', r.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar a Beto (201)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Crea a Beto con datos únicos. La respuesta es { usuario, token }: se guardan su _id y su token.",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Beto",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "{{usuarioBeto}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "{{usuarioBeto}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Clave1234",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "Clave1234",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('usuarioBeto', 'beto' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json();",
+                  "pm.test('Devuelve usuario y token', () => { pm.expect(r.usuario._id).to.be.a('string'); pm.expect(r.token.split('.')).to.have.length(3); });",
+                  "pm.collectionVariables.set('idBeto', r.usuario._id);",
+                  "pm.collectionVariables.set('tokenBeto', r.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana publica (201)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/publicaciones",
+            "description": "Publicación sobre la que se comenta.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "Debate: ¿manga o anime?",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "¿Qué prefieren?",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('idPub', pm.response.json()._id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1 · Autenticación JWT",
+      "description": "El token vence a los 15 minutos y lleva el id, el correo, el nombre de usuario y el rol.",
+      "item": [
+        {
+          "name": "Login devuelve el token (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Login con usuario y contraseña → { usuario, token }. Se revisa la payload del token.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{usuarioAna}}\",\n  \"password\": \"Clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const payload = (t) => JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "const r = pm.response.json(); const p = payload(r.token);",
+                  "pm.test('Sin contraseña', () => pm.expect(r.usuario).to.not.have.property('password'));",
+                  "pm.test('Payload: id, correo, usuario y rol', () => { pm.expect(p.sub).to.eql(pm.collectionVariables.get('idAna')); pm.expect(p.nombreUsuario).to.eql(pm.collectionVariables.get('usuarioAna')); pm.expect(p.correo).to.include('@test.com'); pm.expect(p.perfil).to.eql('usuario'); });",
+                  "pm.test('Vence a los 15 minutos', () => pm.expect(p.exp - p.iat).to.eql(900));",
+                  "pm.collectionVariables.set('tokenAna', r.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autorizar con token válido (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/autorizar",
+            "description": "Authorization: Bearer <token> → 200 con los datos del usuario.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Es Ana, sin contraseña', () => { const u = pm.response.json(); pm.expect(u._id).to.eql(pm.collectionVariables.get('idAna')); pm.expect(u).to.not.have.property('password'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autorizar sin token (401)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/autorizar",
+            "description": "Sin header Authorization → 401.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"iniciar sesi\\u00f3n\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autorizar con token inválido (401)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/autorizar",
+            "description": "Un texto que no es un token → 401.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer esto.no.sirve"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"venci\\u00f3 o no es v\\u00e1lida\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Token manipulado: rol administrador (401)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/autorizar",
+            "description": "El pre-request toma el token de Ana y cambia su rol a administrador sin volver a firmarlo. Como la firma ya no coincide, el back lo rechaza: el rol no se puede inventar.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenManipulado}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const [cab, cuerpo, firma] = pm.collectionVariables.get('tokenAna').split('.');",
+                  "const p = JSON.parse(atob(cuerpo.replace(/-/g, '+').replace(/_/g, '/')));",
+                  "p.perfil = 'administrador';",
+                  "const nuevo = btoa(JSON.stringify(p)).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "pm.collectionVariables.set('tokenManipulado', [cab, nuevo, firma].join('.'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refrescar el token (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refrescar",
+            "description": "Con un token válido → { token } nuevo con la misma payload y otros 15 minutos. Esperá un segundo después del login para que el vencimiento cambie.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const payload = (t) => JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "const viejo = pm.collectionVariables.get('tokenAna');",
+                  "const nuevo = pm.response.json().token;",
+                  "pm.test('Misma payload', () => { const a = payload(viejo), b = payload(nuevo); pm.expect([b.sub, b.correo, b.nombreUsuario, b.perfil]).to.eql([a.sub, a.correo, a.nombreUsuario, a.perfil]); });",
+                  "pm.test('Otros 15 minutos', () => { const b = payload(nuevo); pm.expect(b.exp - b.iat).to.eql(900); pm.expect(b.exp).to.be.at.least(payload(viejo).exp); });",
+                  "pm.collectionVariables.set('tokenAna', nuevo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refrescar sin token (401)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refrescar",
+            "description": "Sin header Authorization → 401.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El token refrescado sirve (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/autorizar",
+            "description": "Se autoriza con el token nuevo.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 · Comentarios",
+      "description": "GET paginado (los más recientes primero), POST con el usuario y la fecha, y PUT que marca modificado: true. Solo quien escribió un comentario lo puede editar.",
+      "item": [
+        {
+          "name": "Ver la publicación (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}",
+            "description": "Una publicación sola, para verla en grande.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Es la de Ana', () => pm.expect(pm.response.json().usuario._id).to.eql(pm.collectionVariables.get('idAna')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publicación inexistente (404)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones/000000000000000000000000",
+            "description": "Id válido que no existe.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Beto comenta (201)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
+            "description": "Comentario con el usuario del token y la fecha (createdAt).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Prefiero el manga\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Con autor, fecha y sin editar', () => { pm.expect(c.usuario._id).to.eql(pm.collectionVariables.get('idBeto')); pm.expect(Date.parse(c.createdAt)).to.be.a('number'); pm.expect(c.modificado).to.eql(false); });",
+                  "pm.collectionVariables.set('idComentarioBeto', c._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana comenta (201)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
+            "description": "Segundo comentario (el más nuevo).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Yo el anime, por la música\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar comentarios (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
+            "description": "Los más recientes primero: el de Ana arriba.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Total 2', () => pm.expect(r.total).to.eql(2));",
+                  "pm.test('Más recientes primero', () => { const f = r.items.map((c) => Date.parse(c.createdAt)); for (let i = 1; i < f.length; i++) pm.expect(f[i - 1]).to.be.at.least(f[i]); pm.expect(r.items[0].usuario._id).to.eql(pm.collectionVariables.get('idAna')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar paginado: limit=1, offset=1 (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios?limit=1&offset=1",
+            "description": "La segunda página de a 1: el comentario más viejo (el de Beto).",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Trae 1, el de Beto', () => { pm.expect(r.items).to.have.length(1); pm.expect(r.items[0]._id).to.eql(pm.collectionVariables.get('idComentarioBeto')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Beto edita su comentario (200)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios/{{idComentarioBeto}}",
+            "description": "PUT con el mensaje nuevo → modificado: true.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Prefiero el manga, sin dudas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json();",
+                  "pm.test('Mensaje nuevo y modificado: true', () => { pm.expect(c.mensaje).to.include('sin dudas'); pm.expect(c.modificado).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana quiere editar el de Beto (403)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios/{{idComentarioBeto}}",
+            "description": "Solo quien escribió el comentario lo puede editar.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Te lo cambio\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"Solo quien escribi\\u00f3\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar sin token (401)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios/{{idComentarioBeto}}",
+            "description": "Sin header Authorization → 401.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar con mensaje vacío (400)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios/{{idComentarioBeto}}",
+            "description": "Solo espacios → 400.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"   \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"no puede estar vac\\u00edo\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar un comentario inexistente (404)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios/000000000000000000000000",
+            "description": "Id válido que no existe → 404.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comentar sin token (401)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
+            "description": "Sin header Authorization → 401.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comentario de más de 500 caracteres (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
+            "description": "Máximo 500 caracteres.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"500 caracteres\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comentar en una publicación inexistente (404)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/publicaciones/000000000000000000000000/comentarios",
+            "description": "Id válido que no existe → 404.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBeto}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El listado muestra el editado (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
+            "description": "El comentario de Beto aparece con modificado: true.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Editado', () => { const c = pm.response.json().items.find((x) => x._id === pm.collectionVariables.get('idComentarioBeto')); pm.expect(c.modificado).to.eql(true); pm.expect(c.mensaje).to.include('sin dudas'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

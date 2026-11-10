@@ -1,5 +1,5 @@
 @let p = publicacion();
-<article class="glass-panel" [class]="acento()">
+<article class="glass-panel" [class]="acento()" [class.grande]="grande()">
   <div class="cabecera">
     <app-avatar [usuario]="p.usuario" [size]="38" [variante]="esMia() ? 'propio' : 'otro'" />
     <div class="quien">
@@ -21,12 +21,16 @@
     }
   </div>
 
-  <h3>{{ p.titulo }}</h3>
+  @if (grande()) {
+    <h1>{{ p.titulo }}</h1>
+  } @else {
+    <h3><a class="titulo" [routerLink]="['/publicaciones', p._id]" title="Ver la publicación">{{ p.titulo }}</a></h3>
+  }
   <p class="texto">{{ p.mensaje }}</p>
 
   @if (p.imagen) {
     <div class="foto">
-      <img [src]="p.imagen" [alt]="'Imagen de la publicación ' + p.titulo" loading="lazy" />
+      <img [src]="p.imagen" [alt]="'Imagen de la publicación ' + p.titulo" [attr.loading]="grande() ? null : 'lazy'" />
     </div>
   }
 
@@ -64,6 +68,10 @@
   </div>
 
   @if (mostrarComentarios()) {
-    <app-comentarios [publicacionId]="p._id" (comentado)="cantidadComentarios.set(cantidadComentarios() + 1)" />
+    <app-comentarios
+      [publicacionId]="p._id"
+      [modo]="grande() ? 'completo' : 'resumen'"
+      (comentado)="cantidadComentarios.set(cantidadComentarios() + 1)"
+    />
   }
 </article>

@@ -1,0 +1,1345 @@
+{
+  "info": {
+    "name": "AnimeGate · Sprint 1 (registro y login)",
+    "description": "Consultas de la API del Sprint 1 (registro y login). Desde el Sprint 3 ambos responden { usuario, token }.\n\n• Cambiar la variable baseUrl para probar en local (http://localhost:3000) o en Render.\n• Correr con \"Run collection\" respetando el orden: \"Registro OK\" crea el usuario que usan los demás.\n• Los pedidos marcados \"elegir archivo\" necesitan seleccionar una imagen a mano en Body (no los incluyas en el Runner, o elegí el archivo antes).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "correo",
+      "value": "prueba@test.com"
+    },
+    {
+      "key": "correoMayus",
+      "value": "PRUEBA@TEST.COM"
+    },
+    {
+      "key": "nombreUsuario",
+      "value": "prueba"
+    },
+    {
+      "key": "password",
+      "value": "Clave1234"
+    },
+    {
+      "key": "mensaje401",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0 · Estado del servidor",
+      "description": "Verifica que el backend esté prendido y conectado a MongoDB.",
+      "item": [
+        {
+          "name": "Salud del backend (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/",
+            "description": "GET / → 200 si el backend está conectado a MongoDB; 503 con el motivo si no. En Render, el primer pedido puede tardar ~50 s si el servicio estaba dormido."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Conectado a MongoDB', () => pm.expect(pm.response.json().mongo).to.eql('conectado'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1 · Registro (POST /auth/registro)",
+      "description": "Alta de usuarios. El body es multipart/form-data porque puede llevar la imagen de perfil.",
+      "item": [
+        {
+          "name": "Registro OK (201)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Crea un usuario nuevo. El pre-request script genera correo y usuario únicos en cada corrida, así la colección se puede ejecutar muchas veces.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "{{correo}}",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "{{nombreUsuario}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Genera correo y usuario únicos para poder correr la colección muchas veces",
+                  "const n = Date.now();",
+                  "pm.collectionVariables.set('correo', `prueba${n}@test.com`);",
+                  "pm.collectionVariables.set('nombreUsuario', `prueba${n}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const u = pm.response.json().usuario;",
+                  "pm.test('Devuelve el token JWT', () => pm.expect(pm.response.json().token.split('.')).to.have.length(3));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario).to.not.have.property('password'));",
+                  "pm.test('Perfil por defecto: usuario', () => pm.expect(u.perfil).to.eql('usuario'));",
+                  "pm.test('Correo guardado en minúsculas', () => pm.expect(u.correo).to.eql(pm.collectionVariables.get('correo').toLowerCase()));",
+                  "pm.test('Tiene _id y createdAt', () => { pm.expect(u._id).to.be.a('string'); pm.expect(u.createdAt).to.be.a('string'); });",
+                  "pm.test('Sin imagen: imagenPerfil es null', () => pm.expect(u.imagenPerfil).to.eql(null));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro con imagen de perfil (201) · elegir archivo",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "ANTES DE ENVIAR: en Body, fila imagenPerfil (tipo File) → Select Files → elegir una imagen JPG/PNG (máx. 5 MB). Devuelve la URL de la imagen (Cloudinary o /uploads).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "foto{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "foto{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "imagenPerfil",
+                  "type": "file",
+                  "src": [],
+                  "description": "Elegir una imagen JPG, PNG, WEBP o GIF de hasta 5 MB"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario).to.not.have.property('password'));",
+                  "pm.test('Devuelve la URL de la imagen', () => pm.expect(pm.response.json().usuario.imagenPerfil).to.match(/^https?:\\/\\//));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Correo ya registrado (409)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Mismo correo que \"Registro OK\" con otro usuario → 409 Conflict.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "{{correo}}",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "otro{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"correo ya est\\u00e1 registrado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Correo ya registrado en MAYÚSCULAS (409)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "El correo se guarda en minúsculas: PRUEBA...@TEST.COM cuenta como el mismo → 409.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "{{correoMayus}}",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "otro{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('correoMayus', pm.collectionVariables.get('correo').toUpperCase());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nombre de usuario ya en uso (409)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Mismo nombre de usuario que \"Registro OK\" con otro correo → 409 Conflict.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "otro{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "{{nombreUsuario}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"nombre de usuario ya est\\u00e1 en uso\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin datos (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Body vacío → 400 con la lista de todos los campos que faltan.",
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Lista varios errores', () => pm.expect(pm.response.json().message.length).to.be.above(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Correo inválido (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "correo = \"no-es-un-correo\" → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "no-es-un-correo",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "x{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"correo no es v\\u00e1lido\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Contraseña corta (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "password = \"Ab1\" (menos de 8 caracteres) → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "x{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "x{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Ab1",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "Ab1",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"al menos 8 caracteres\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Contraseña sin mayúscula (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "password = \"clave1234\" → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "x{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "x{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "clave1234",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "clave1234",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"una may\\u00fascula\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Contraseña sin número (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "password = \"ClaveSegura\" → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "x{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "x{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "ClaveSegura",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "ClaveSegura",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"un n\\u00famero\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Contraseñas distintas (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "repetirPassword distinta de password → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "x{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "x{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "Distinta123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"no coinciden\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fecha de nacimiento inválida (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "fechaNacimiento = \"ayer\" → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "x{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "x{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "ayer",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"fecha de nacimiento no es v\\u00e1lida\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Usuario con caracteres no permitidos (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "nombreUsuario = \"juan perez!\" (espacio y símbolo) → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "x{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "juan perez!",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 · Seguridad del registro",
+      "description": "Casos que muestran que el backend no confía en lo que manda el cliente.",
+      "item": [
+        {
+          "name": "Intentar registrarse como administrador (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "Se agrega perfil=administrador. El ValidationPipe (forbidNonWhitelisted) rechaza campos que no están en el DTO → 400 \"property perfil should not exist\".",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "admin{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "admin{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "perfil",
+                  "value": "administrador",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"property perfil should not exist\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archivo que no es imagen (400) · elegir archivo",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "description": "ANTES DE ENVIAR: en imagenPerfil elegir un archivo que NO sea imagen (por ejemplo un .txt o .pdf) → 400.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Juan",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Pérez",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "txt{{$timestamp}}@test.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "txt{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "repetirPassword",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "imagenPerfil",
+                  "type": "file",
+                  "src": [],
+                  "description": "Elegir un archivo que NO sea imagen (.txt, .pdf)"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"JPG, PNG, WEBP o GIF\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 · Login (POST /auth/login)",
+      "description": "Inicio de sesión con correo o nombre de usuario. El body es JSON.",
+      "item": [
+        {
+          "name": "Login con nombre de usuario (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Devuelve 200 (no 201: el login no crea nada) con los datos del usuario, sin la contraseña.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{nombreUsuario}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario).to.not.have.property('password'));",
+                  "pm.test('Devuelve el token JWT', () => pm.expect(pm.response.json().token.split('.')).to.have.length(3));",
+                  "pm.test('Es el usuario correcto', () => pm.expect(pm.response.json().usuario.nombreUsuario).to.eql(pm.collectionVariables.get('nombreUsuario')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con correo (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "El mismo usuario, identificándose con el correo.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{correo}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario).to.not.have.property('password'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con correo en MAYÚSCULAS (200)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "El correo no distingue mayúsculas: se busca en minúsculas.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{correoMayus}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Contraseña incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Usuario existente con contraseña equivocada → 401.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{nombreUsuario}}\",\n  \"password\": \"Incorrecta123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.collectionVariables.set('mensaje401', pm.response.json().message);",
+                  "pm.test('El mensaje explica el error', () => { const m = pm.response.json().message; pm.expect([].concat(m).join(' | ')).to.include(\"Usuario o contrase\\u00f1a incorrectos\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Usuario inexistente (401, mismo mensaje)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Usuario que no existe → el MISMO 401 y el mismo mensaje que con la contraseña incorrecta, para no revelar qué usuarios están registrados.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"no_existe_{{$timestamp}}\",\n  \"password\": \"Clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Mismo mensaje que con contraseña incorrecta', () => pm.expect(pm.response.json().message).to.eql(pm.collectionVariables.get('mensaje401')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin datos (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Body {} → 400.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "JSON mal formado (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Body con JSON inválido → 400.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"identificador\": \"juan\", ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 · Rutas que no existen",
+      "description": "Status 404 para rutas o métodos no definidos.",
+      "item": [
+        {
+          "name": "Ruta inexistente (404)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/no-existe",
+            "description": "Ruta que no existe → 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Método incorrecto: GET /auth/login (404)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "El login solo existe por POST: con GET → 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

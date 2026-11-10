@@ -1,9 +1,14 @@
 import { inject } from '@angular/core';
 import { Router, Routes } from '@angular/router';
 
-// Sprint 1: navegación libre entre pantallas (los guards de sesión se agregan en el Sprint 3).
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  {
+    // Sprint 3: al iniciar la app se valida el token con un spinner y se redirige.
+    path: '',
+    pathMatch: 'full',
+    title: 'AnimeGate',
+    loadComponent: () => import('./pages/cargando/cargando').then((m) => m.Cargando),
+  },
   {
     // Login y registro comparten página: son dos pestañas (?tab=registro).
     path: 'login',
@@ -22,9 +27,16 @@ export const routes: Routes = [
       import('./pages/publicaciones/publicaciones').then((m) => m.Publicaciones),
   },
   {
+    // Sprint 3: una publicación en grande, con todos sus comentarios.
+    path: 'publicaciones/:id',
+    title: 'Publicación · AnimeGate',
+    loadComponent: () =>
+      import('./pages/publicacion-detalle/publicacion-detalle').then((m) => m.PublicacionDetalle),
+  },
+  {
     path: 'mi-perfil',
     title: 'Mi perfil · AnimeGate',
     loadComponent: () => import('./pages/mi-perfil/mi-perfil').then((m) => m.MiPerfil),
   },
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: '' },
 ];

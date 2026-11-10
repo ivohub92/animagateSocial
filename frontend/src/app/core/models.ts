@@ -14,6 +14,12 @@ export interface Usuario {
   createdAt: string;
 }
 
+/** Respuesta de login y registro: el usuario y su token JWT (vence a los 15 minutos). */
+export interface Sesion {
+  usuario: Usuario;
+  token: string;
+}
+
 export interface LoginRequest {
   identificador: string;
   password: string;
@@ -56,6 +62,8 @@ export interface Comentario {
   publicacion: string;
   usuario: Autor;
   mensaje: string;
+  /** true si el autor lo editó. */
+  modificado?: boolean;
   createdAt: string;
 }
 
