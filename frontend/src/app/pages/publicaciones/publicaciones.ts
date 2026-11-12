@@ -3,13 +3,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService, mensajeDeError } from '../../core/auth.service';
-import { calcularEdad } from '../../core/fechas';
 import { OrdenPublicaciones, PaginaPublicaciones, Publicacion } from '../../core/models';
 import { PublicacionesService } from '../../core/publicaciones.service';
 import { Avatar } from '../../shared/avatar/avatar';
 import { Icono } from '../../shared/icono/icono';
 import { PublicacionCard } from '../../shared/publicacion/publicacion';
 import { NuevaPublicacion } from './nueva-publicacion/nueva-publicacion';
+import { NombreCompletoPipe } from '../../shared/pipes/nombre-completo.pipe';
+import { EdadPipe } from '../../shared/pipes/edad.pipe';
 
 /** Cantidad de publicaciones por página. */
 const POR_PAGINA = 5;
@@ -24,7 +25,7 @@ const CONSEJOS_KIRA = [
 
 @Component({
   selector: 'app-publicaciones',
-  imports: [RouterLink, DatePipe, Avatar, Icono, PublicacionCard, NuevaPublicacion],
+  imports: [RouterLink, DatePipe, Avatar, Icono, PublicacionCard, NuevaPublicacion, NombreCompletoPipe, EdadPipe],
   templateUrl: './publicaciones.html',
   styleUrl: './publicaciones.scss',
 })
@@ -45,11 +46,6 @@ export class Publicaciones {
   protected readonly totalPaginas = computed(() =>
     Math.max(1, Math.ceil((this.pagina()?.total ?? 0) / POR_PAGINA)),
   );
-
-  protected readonly edad = computed(() => {
-    const u = this.auth.usuario();
-    return u ? calcularEdad(u.fechaNacimiento) : null;
-  });
 
   private pedido?: Subscription;
   private pedidoTop?: Subscription;

@@ -38,7 +38,7 @@
     color: #e2e8f0;
     font: inherit;
     font-size: 13px;
-    resize: vertical;
+    resize: none; // la altura la maneja la directiva appAutoAltura
     transition: border-color 0.2s;
 
     &::placeholder {
@@ -190,7 +190,7 @@ li {
     color: #e2e8f0;
     font: inherit;
     font-size: 13px;
-    resize: vertical;
+    resize: none; // la altura la maneja la directiva appAutoAltura
 
     &:focus-visible {
       outline: none;

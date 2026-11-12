@@ -4,7 +4,7 @@
     <app-avatar [usuario]="p.usuario" [size]="38" [variante]="esMia() ? 'propio' : 'otro'" />
     <div class="quien">
       <div class="linea">
-        <span class="autor">{{ p.usuario.nombre }} {{ p.usuario.apellido }}</span>
+        <span class="autor">{{ p.usuario | nombreCompleto }}</span>
         @if (esMia()) {
           <span class="tag tag-accent">#Tuya</span>
         } @else {
@@ -30,7 +30,7 @@
 
   @if (p.imagen) {
     <div class="foto">
-      <img [src]="p.imagen" [alt]="'Imagen de la publicación ' + p.titulo" [attr.loading]="grande() ? null : 'lazy'" />
+      <img [src]="p.imagen" appImagenRespaldo [alt]="'Imagen de la publicación ' + p.titulo" [attr.loading]="grande() ? null : 'lazy'" />
     </div>
   }
 
@@ -56,7 +56,7 @@
       (click)="mostrarComentarios.set(!mostrarComentarios())"
     >
       <app-icono nombre="chat" />
-      {{ cantidadComentarios() }} {{ cantidadComentarios() === 1 ? 'comentario' : 'comentarios' }}
+      {{ cantidadComentarios() | plural: 'comentario' }}
     </button>
 
     @if (puedeEliminar()) {

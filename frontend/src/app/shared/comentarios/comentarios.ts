@@ -9,6 +9,8 @@ import { Avatar } from '../avatar/avatar';
 import { Icono } from '../icono/icono';
 import { ModalService } from '../modal/modal.service';
 import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
+import { NombreCompletoPipe } from '../pipes/nombre-completo.pipe';
+import { AutoAlturaDirective } from '../directivas/auto-altura.directive';
 
 const MAX_CARACTERES = 500;
 
@@ -24,7 +26,7 @@ const POR_PAGINA = { resumen: 3, completo: 5 } as const;
  */
 @Component({
   selector: 'app-comentarios',
-  imports: [ReactiveFormsModule, RouterLink, Avatar, Icono, TiempoRelativoPipe],
+  imports: [ReactiveFormsModule, RouterLink, Avatar, Icono, TiempoRelativoPipe, NombreCompletoPipe, AutoAlturaDirective],
   templateUrl: './comentarios.html',
   styleUrl: './comentarios.scss',
 })

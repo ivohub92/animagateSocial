@@ -9,11 +9,14 @@ import { Estrellas } from '../estrellas/estrellas';
 import { Icono } from '../icono/icono';
 import { ModalService } from '../modal/modal.service';
 import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
+import { NombreCompletoPipe } from '../pipes/nombre-completo.pipe';
+import { PluralPipe } from '../pipes/plural.pipe';
+import { ImagenRespaldoDirective } from '../directivas/imagen-respaldo.directive';
 
 
 @Component({
   selector: 'app-publicacion',
-  imports: [RouterLink, Avatar, TiempoRelativoPipe, Icono, Estrellas, Comentarios],
+  imports: [RouterLink, Avatar, TiempoRelativoPipe, Icono, Estrellas, Comentarios, NombreCompletoPipe, PluralPipe, ImagenRespaldoDirective],
   templateUrl: './publicacion.html',
   styleUrl: './publicacion.scss',
 })

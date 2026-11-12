@@ -48,7 +48,7 @@
           <span class="usuario" role="cell">
             <app-avatar [usuario]="u" [size]="36" [variante]="u._id === auth.usuario()?._id ? 'propio' : 'otro'" />
             <span>
-              <span class="nombre">{{ u.nombre }} {{ u.apellido }}</span>
+              <span class="nombre">{{ u | nombreCompleto }}</span>
               <span class="handle">&#64;{{ u.nombreUsuario }}{{ u._id === auth.usuario()?._id ? ' · vos' : '' }}</span>
             </span>
           </span>

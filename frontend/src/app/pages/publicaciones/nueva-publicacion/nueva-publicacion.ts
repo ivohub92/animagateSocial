@@ -8,6 +8,7 @@ import { Avatar } from '../../../shared/avatar/avatar';
 import { Estrellas } from '../../../shared/estrellas/estrellas';
 import { Icono } from '../../../shared/icono/icono';
 import { ModalService } from '../../../shared/modal/modal.service';
+import { AutoAlturaDirective } from '../../../shared/directivas/auto-altura.directive';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGEN_MB = 5;
@@ -15,7 +16,7 @@ const MAX_IMAGEN_MB = 5;
 /** Caja para escribir una publicación nueva: título, mensaje e imagen opcional. */
 @Component({
   selector: 'app-nueva-publicacion',
-  imports: [ReactiveFormsModule, Avatar, Icono, Estrellas],
+  imports: [ReactiveFormsModule, Avatar, Icono, Estrellas, AutoAlturaDirective],
   templateUrl: './nueva-publicacion.html',
   styleUrl: './nueva-publicacion.scss',
 })

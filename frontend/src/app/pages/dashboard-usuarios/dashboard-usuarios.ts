@@ -8,6 +8,7 @@ import { Icono } from '../../shared/icono/icono';
 import { ModalService } from '../../shared/modal/modal.service';
 import { DashboardTabs } from '../../shared/dashboard-tabs/dashboard-tabs';
 import { RegistroForm } from '../acceso/registro-form/registro-form';
+import { NombreCompletoPipe } from '../../shared/pipes/nombre-completo.pipe';
 
 /**
  * Panel de administración (Sprint 4, solo administradores): listado de usuarios, alta con el
@@ -15,7 +16,7 @@ import { RegistroForm } from '../acceso/registro-form/registro-form';
  */
 @Component({
   selector: 'app-dashboard-usuarios',
-  imports: [DatePipe, Avatar, Icono, RegistroForm, DashboardTabs],
+  imports: [DatePipe, Avatar, Icono, RegistroForm, DashboardTabs, NombreCompletoPipe],
   templateUrl: './dashboard-usuarios.html',
   styleUrl: './dashboard-usuarios.scss',
 })

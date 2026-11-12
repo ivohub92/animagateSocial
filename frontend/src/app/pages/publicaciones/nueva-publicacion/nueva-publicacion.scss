@@ -64,7 +64,7 @@
 .mensaje {
   font-family: var(--font-body);
   font-size: 13px;
-  resize: vertical;
+  resize: none; // la altura la maneja la directiva appAutoAltura
   min-height: 64px;
 }
 

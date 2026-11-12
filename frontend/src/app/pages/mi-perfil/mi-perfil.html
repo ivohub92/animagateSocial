@@ -12,7 +12,7 @@
           </div>
           <div class="datos">
             <div class="nombre-linea">
-              <h1>{{ u.nombre }} {{ u.apellido }}</h1>
+              <h1>{{ u | nombreCompleto }}</h1>
               <span class="chip rosa">{{ u.perfil === 'administrador' ? 'ADMINISTRADOR' : 'USUARIO' }}</span>
               <span class="chip cyan">&#64;{{ u.nombreUsuario }}</span>
             </div>
@@ -34,7 +34,7 @@
       <div class="estadisticas">
         <div><div class="num rosa">{{ mias()?.total ?? '–' }}</div><div class="lbl">Publicaciones</div></div>
         <div><div class="num cyan">{{ meGustaRecibidos() }}</div><div class="lbl">Me gusta (últimas {{ ultimas }})</div></div>
-        <div><div class="num violeta">{{ edad() }}</div><div class="lbl">Años</div></div>
+        <div><div class="num violeta">{{ u.fechaNacimiento | edad }}</div><div class="lbl">Años</div></div>
         <div><div class="num ambar">{{ u.createdAt | date: 'yyyy' }}</div><div class="lbl">Desde</div></div>
       </div>
     </section>
@@ -122,7 +122,7 @@
           <ul class="resumen">
             <li><span>Usuario</span><b class="cyan">&#64;{{ u.nombreUsuario }}</b></li>
             <li><span>Perfil</span><b class="rosa">{{ u.perfil === 'administrador' ? 'Administrador' : 'Usuario' }}</b></li>
-            <li><span>Edad</span><b>{{ edad() }} años</b></li>
+            <li><span>Edad</span><b>{{ u.fechaNacimiento | edad: 'texto' }}</b></li>
             <li><span>Alta</span><b>{{ u.createdAt | date: 'd/MM/yyyy' }}</b></li>
           </ul>
         </div>

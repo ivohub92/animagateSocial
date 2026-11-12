@@ -13,18 +13,17 @@
       <app-icono nombre="usuario" />
       Mi perfil
     </a>
-    @if (auth.usuario()?.perfil === 'administrador') {
-      <a routerLink="/dashboard/usuarios" class="admin" [class.activo]="enDashboard()">
-        <app-icono nombre="escudo" />
-        Dashboard
-      </a>
-    }
+    <!-- Directiva estructural propia: el enlace solo existe para administradores -->
+    <a *appSoloAdmin routerLink="/dashboard/usuarios" class="admin" [class.activo]="enDashboard()">
+      <app-icono nombre="escudo" />
+      Dashboard
+    </a>
   </nav>
 
   @if (auth.usuario(); as u) {
     <div class="user">
       <div class="who">
-        {{ u.nombre }} {{ u.apellido[0] }}.
+        {{ u | nombreCompleto: 'corto' }}
         <small>&#64;{{ u.nombreUsuario }}{{ u.perfil === 'administrador' ? ' · Admin ★' : '' }}</small>
       </div>
       <app-avatar [usuario]="u" [size]="36" variante="en-barra" />

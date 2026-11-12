@@ -5,7 +5,7 @@
         <div class="fila">
           <app-avatar [usuario]="u" [size]="48" variante="propio" />
           <div class="datos">
-            <div class="nombre">{{ u.nombre }} {{ u.apellido }}</div>
+            <div class="nombre">{{ u | nombreCompleto }}</div>
             <div class="handle">&#64;{{ u.nombreUsuario }}</div>
           </div>
           <span class="tag" [class]="u.perfil === 'administrador' ? 'tag-accent' : 'tag-outline'">
@@ -16,7 +16,7 @@
           <p class="bio">{{ u.descripcion }}</p>
         }
         <div class="stats">
-          <div><div class="num">{{ edad() }}</div><div class="lbl">Años</div></div>
+          <div><div class="num">{{ u.fechaNacimiento | edad }}</div><div class="lbl">Años</div></div>
           <div><div class="num">{{ u.createdAt | date: 'yyyy' }}</div><div class="lbl">Desde</div></div>
         </div>
       </div>

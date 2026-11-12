@@ -3,19 +3,20 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService, mensajeDeError } from '../../core/auth.service';
-import { calcularEdad } from '../../core/fechas';
 import { PaginaPublicaciones } from '../../core/models';
 import { PublicacionesService } from '../../core/publicaciones.service';
 import { Avatar } from '../../shared/avatar/avatar';
 import { Icono } from '../../shared/icono/icono';
 import { PublicacionCard } from '../../shared/publicacion/publicacion';
+import { NombreCompletoPipe } from '../../shared/pipes/nombre-completo.pipe';
+import { EdadPipe } from '../../shared/pipes/edad.pipe';
 
 /** Cuántas publicaciones propias se muestran en el perfil. */
 const ULTIMAS = 3;
 
 @Component({
   selector: 'app-mi-perfil',
-  imports: [RouterLink, DatePipe, Avatar, Icono, PublicacionCard],
+  imports: [RouterLink, DatePipe, Avatar, Icono, PublicacionCard, NombreCompletoPipe, EdadPipe],
   templateUrl: './mi-perfil.html',
   styleUrl: './mi-perfil.scss',
 })
@@ -28,10 +29,6 @@ export class MiPerfil {
   protected readonly error = signal<string | null>(null);
   protected readonly ultimas = ULTIMAS;
 
-  protected readonly edad = computed(() => {
-    const u = this.auth.usuario();
-    return u ? calcularEdad(u.fechaNacimiento) : null;
-  });
 
   
   protected readonly meGustaRecibidos = computed(

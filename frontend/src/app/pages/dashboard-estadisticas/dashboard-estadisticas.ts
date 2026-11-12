@@ -35,6 +35,8 @@ import {
   PublicacionesPorUsuario,
 } from '../../core/estadisticas.service';
 import { DashboardTabs } from '../../shared/dashboard-tabs/dashboard-tabs';
+import { NombreCompletoPipe } from '../../shared/pipes/nombre-completo.pipe';
+import { PluralPipe } from '../../shared/pipes/plural.pipe';
 
 // Solo se registran las piezas de Chart.js que se usan (el bundle queda más liviano).
 Chart.register(
@@ -68,7 +70,7 @@ const medianoche = (dia: string, masDias = 0) => {
 /** Página dashboard/estadisticas (Sprint 4, solo administradores): tres gráficos de distinto tipo. */
 @Component({
   selector: 'app-dashboard-estadisticas',
-  imports: [DecimalPipe, DashboardTabs],
+  imports: [DecimalPipe, DashboardTabs, NombreCompletoPipe, PluralPipe],
   templateUrl: './dashboard-estadisticas.html',
   styleUrl: './dashboard-estadisticas.scss',
 })

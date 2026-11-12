@@ -22,6 +22,8 @@
         class="mensaje"
         formControlName="mensaje"
         rows="2"
+        appAutoAltura
+        [alturaMaxima]="320"
         maxlength="1000"
         [placeholder]="'¿Qué opinás del último episodio o tomo de manga que leíste, ' + u.nombre + '?'"
         [class.invalid]="invalido('mensaje')"

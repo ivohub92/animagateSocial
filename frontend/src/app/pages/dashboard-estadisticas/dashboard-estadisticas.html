@@ -85,7 +85,7 @@
       <header>
         <div>
           <h2 id="t-publicaciones">Publicaciones por usuario</h2>
-          <p class="muted">{{ publicaciones()?.total ?? 0 }} publicaciones en el lapso, de mayor a menor.</p>
+          <p class="muted">{{ publicaciones()?.total | plural: 'publicación' }} en el lapso, de mayor a menor.</p>
         </div>
       </header>
       <div class="lienzo" [hidden]="!publicaciones()?.total">
@@ -104,7 +104,7 @@
             <thead><tr><th>Usuario</th><th>Publicaciones</th></tr></thead>
             <tbody>
               @for (i of publicaciones()!.items; track i.usuario._id) {
-                <tr><td>{{ i.usuario.nombre }} {{ i.usuario.apellido }} · &#64;{{ i.usuario.nombreUsuario }}</td><td>{{ i.cantidad }}</td></tr>
+                <tr><td>{{ i.usuario | nombreCompleto }} · &#64;{{ i.usuario.nombreUsuario }}</td><td>{{ i.cantidad }}</td></tr>
               }
             </tbody>
           </table>

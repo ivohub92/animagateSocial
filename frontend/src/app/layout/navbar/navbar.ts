@@ -5,10 +5,12 @@ import { filter, map } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
 import { Avatar } from '../../shared/avatar/avatar';
 import { Icono } from '../../shared/icono/icono';
+import { NombreCompletoPipe } from '../../shared/pipes/nombre-completo.pipe';
+import { SoloAdminDirective } from '../../shared/directivas/solo-admin.directive';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive, Avatar, Icono],
+  imports: [RouterLink, RouterLinkActive, Avatar, Icono, NombreCompletoPipe, SoloAdminDirective],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
