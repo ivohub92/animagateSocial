@@ -80,6 +80,27 @@
   con **Cargar más** (agrega los siguientes sin perder los anteriores). Cada uno puede **editar** sus
   comentarios, y los editados dicen *editado*.
 
+## Sprint 4 – Administración
+
+**Back · módulo usuarios** (`/usuarios`, todas las rutas con `UsuarioActualGuard` + `AdminGuard`: 401 sin token, 403 si no es administrador)
+
+| Método y ruta | Qué hace | Status |
+|---|---|---|
+| `GET /usuarios` | Listado de usuarios (sin contraseña), los más nuevos primero | 200 |
+| `POST /usuarios` (multipart: los campos del registro + `perfil`: `usuario` \| `administrador`) | Alta de un usuario con el perfil elegido (sin perfil: `usuario`) | 201 · 400 · 409 |
+| `DELETE /usuarios/:id` | Baja lógica: `activo = false`. No se puede deshabilitar la propia cuenta | 200 · 400 · 404 · 409 |
+| `POST /usuarios/:id/habilitar` | Alta lógica: vuelve a `activo = true` | 200 · 404 · 409 |
+
+- Un usuario deshabilitado que intenta ingresar recibe **403** *"Tu cuenta está deshabilitada: no estás autorizado a
+  ingresar"* (solo si la contraseña es correcta, para no revelar el estado de la cuenta). Si tenía la sesión abierta,
+  su token deja de servir: **401** con el mismo aviso.
+- Un administrador puede dar de baja cualquier publicación; con ella se dan de baja sus comentarios.
+- El primer administrador se crea cambiando `perfil` a `"administrador"` en Atlas; después se crean desde `POST /usuarios`.
+
+**Front**
+- Página `/dashboard/usuarios` (solo administradores, con `adminGuard`): listado de usuarios con perfil y estado.
+- Botón **Dar de baja** del administrador en las publicaciones ajenas.
+
 ## Postman
 
 | Colección | Consultas |

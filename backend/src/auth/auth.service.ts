@@ -1,19 +1,12 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { saveImage } from '../common/image-upload.js';
 import { UserDocument } from '../users/schemas/user.schema.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
-import { PayloadToken, SESION_INVALIDA } from './token.js';
+import { CUENTA_DESHABILITADA, PayloadToken, SESION_INVALIDA } from './token.js';
 
-const SALT_ROUNDS = 10;
 
 @Injectable()
 export class AuthService {
@@ -23,44 +16,9 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto, imagen?: Express.Multer.File) {
-    if (dto.password !== dto.repetirPassword) {
-      throw new BadRequestException('Las contraseñas no coinciden');
-    }
-
-    const existente = await this.usersService.existsByCorreoOrNombreUsuario(
-      dto.correo,
-      dto.nombreUsuario,
-    );
-    if (existente) {
-      throw new ConflictException(
-        existente.correo === dto.correo.toLowerCase()
-          ? 'El correo ya está registrado'
-          : 'El nombre de usuario ya está en uso',
-      );
-    }
-
-    const { repetirPassword: _, password, ...datos } = dto;
-    try {
-      const user = await this.usersService.create({
-        ...datos,
-        fechaNacimiento: new Date(dto.fechaNacimiento),
-        password: await bcrypt.hash(password, SALT_ROUNDS),
-        imagenPerfil: imagen ? await saveImage(imagen) : null,
-      });
-      return this.sesion(user);
-    } catch (err) {
-      // Dos registros simultáneos con el mismo dato pasan la verificación de arriba,
-      // pero el índice único de MongoDB rechaza el segundo (error 11000): es un 409, no un 500.
-      if ((err as { code?: number }).code === 11000) {
-        const campo = Object.keys((err as { keyPattern?: object }).keyPattern ?? {})[0];
-        throw new ConflictException(
-          campo === 'nombreUsuario'
-            ? 'El nombre de usuario ya está en uso'
-            : 'El correo ya está registrado',
-        );
-      }
-      throw err;
-    }
+    // El registro público siempre crea perfil "usuario" (el DTO ni siquiera acepta el campo).
+    const user = await this.usersService.registrar(dto, imagen);
+    return this.sesion(user);
   }
 
   async login(dto: LoginDto) {
@@ -69,6 +27,9 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
+    // Recién con la contraseña correcta se avisa que la cuenta está deshabilitada:
+    // así no se revela el estado de una cuenta a quien no sabe su contraseña.
+    if (!user.activo) throw new ForbiddenException(CUENTA_DESHABILITADA);
     return this.sesion(user);
   }
 
@@ -105,7 +66,8 @@ export class AuthService {
       throw new UnauthorizedException(SESION_INVALIDA);
     }
     const usuario = await this.usersService.findById(payload.sub);
-    if (!usuario || !usuario.activo) throw new UnauthorizedException(SESION_INVALIDA);
+    if (!usuario) throw new UnauthorizedException(SESION_INVALIDA);
+    if (!usuario.activo) throw new UnauthorizedException(CUENTA_DESHABILITADA);
     return { payload, usuario };
   }
 }

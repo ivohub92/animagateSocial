@@ -7,7 +7,13 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { isValidObjectId } from 'mongoose';
-import { PayloadToken, SESION_INVALIDA, SIN_SESION, tokenDelHeader } from '../auth/token.js';
+import {
+  CUENTA_DESHABILITADA,
+  PayloadToken,
+  SESION_INVALIDA,
+  SIN_SESION,
+  tokenDelHeader,
+} from '../auth/token.js';
 import { UserDocument } from '../users/schemas/user.schema.js';
 import { UsersService } from '../users/users.service.js';
 
@@ -21,15 +27,18 @@ async function usuarioDelToken(
   req: RequestConUsuario,
   jwt: JwtService,
   usuarios: UsersService,
-): Promise<{ usuario: UserDocument | null; habiaToken: boolean }> {
+): Promise<{ usuario: UserDocument | null; motivo?: string }> {
   const token = tokenDelHeader(req.headers.authorization);
-  if (!token) return { usuario: null, habiaToken: false };
+  if (!token) return { usuario: null, motivo: SIN_SESION };
   try {
     const payload = await jwt.verifyAsync<PayloadToken>(token);
     const usuario = isValidObjectId(payload.sub) ? await usuarios.findById(payload.sub) : null;
-    return { usuario: usuario?.activo ? usuario : null, habiaToken: true };
+    if (!usuario) return { usuario: null, motivo: SESION_INVALIDA };
+    // Deshabilitado por un administrador mientras tenía la sesión abierta: el token ya no alcanza.
+    if (!usuario.activo) return { usuario: null, motivo: CUENTA_DESHABILITADA };
+    return { usuario };
   } catch {
-    return { usuario: null, habiaToken: true }; // firma inválida o token vencido
+    return { usuario: null, motivo: SESION_INVALIDA }; // firma inválida o token vencido
   }
 }
 
@@ -43,8 +52,8 @@ export class UsuarioActualGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<RequestConUsuario>();
-    const { usuario, habiaToken } = await usuarioDelToken(req, this.jwt, this.usersService);
-    if (!usuario) throw new UnauthorizedException(habiaToken ? SESION_INVALIDA : SIN_SESION);
+    const { usuario, motivo } = await usuarioDelToken(req, this.jwt, this.usersService);
+    if (!usuario) throw new UnauthorizedException(motivo);
     req.usuario = usuario;
     return true;
   }

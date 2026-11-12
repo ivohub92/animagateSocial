@@ -14,6 +14,8 @@ export const VENCIMIENTO_TOKEN = '15m';
 
 export const SIN_SESION = 'Tenés que iniciar sesión para hacer esto';
 export const SESION_INVALIDA = 'La sesión venció o no es válida. Volvé a iniciar sesión.';
+export const CUENTA_DESHABILITADA =
+  'Tu cuenta está deshabilitada: no estás autorizado a ingresar. Consultá con un administrador.';
 
 /** Saca el token del header "Authorization: Bearer <token>"; si no está, devuelve null. */
 export function tokenDelHeader(authorization?: string): string | null {
