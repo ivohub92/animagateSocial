@@ -4,6 +4,10 @@
       <div class="kicker"><span class="punto"></span>Dashboard · Administración</div>
       <h1>Usuarios</h1>
       <p class="muted">Todas las cuentas de AnimeGate. Esta sección solo la ven los administradores.</p>
+      <button type="button" class="btn btn-primary nuevo" (click)="mostrarFormulario.set(!mostrarFormulario())">
+        <app-icono [nombre]="mostrarFormulario() ? 'flecha-izq' : 'usuario-mas'" [tam]="15" />
+        {{ mostrarFormulario() ? 'Volver al listado' : 'Nuevo usuario' }}
+      </button>
     </div>
     <div class="numeros">
       <div><span class="num cyan">{{ total() }}</span><span class="lbl">Usuarios</span></div>
@@ -12,7 +16,14 @@
     </div>
   </section>
 
-  @if (cargando()) {
+  @if (mostrarFormulario()) {
+    <!-- Formulario de registro para nuevos usuarios: el mismo del registro, en modo admin -->
+    <section class="alta glass-panel" aria-labelledby="titulo-alta">
+      <h2 id="titulo-alta">Nuevo usuario</h2>
+      <p class="muted">Mismos datos que el registro. Elegí si la cuenta es de usuario o de administrador.</p>
+      <app-registro-form modo="admin" (creado)="alCrear($event)" />
+    </section>
+  } @else if (cargando()) {
     <p class="muted">Cargando usuarios…</p>
   } @else if (error(); as e) {
     <div class="empty">
@@ -29,6 +40,7 @@
         <span role="columnheader">Perfil</span>
         <span role="columnheader">Estado</span>
         <span role="columnheader">Alta</span>
+        <span role="columnheader"><span class="oculto">Acciones</span></span>
       </div>
       @for (u of usuarios(); track u._id) {
         <div class="fila" role="row" [class.inactivo]="!u.activo">
@@ -51,6 +63,19 @@
             <span class="estado" [class.activo]="u.activo">{{ u.activo ? 'Activo' : 'Deshabilitado' }}</span>
           </span>
           <span class="alta" role="cell" data-titulo="Alta">{{ u.createdAt | date: 'd/MM/yyyy' }}</span>
+          <span class="acciones" role="cell">
+            @if (u._id === auth.usuario()?._id) {
+              <span class="muted propia" title="No podés deshabilitar tu propia cuenta">Tu cuenta</span>
+            } @else if (u.activo) {
+              <button type="button" class="accion deshabilitar" [disabled]="procesandoId() === u._id" (click)="deshabilitar(u)">
+                Deshabilitar
+              </button>
+            } @else {
+              <button type="button" class="accion habilitar" [disabled]="procesandoId() === u._id" (click)="habilitar(u)">
+                Habilitar
+              </button>
+            }
+          </span>
         </div>
       }
     </div>

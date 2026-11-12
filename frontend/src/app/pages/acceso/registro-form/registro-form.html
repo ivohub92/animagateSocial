@@ -1,6 +1,25 @@
 <form class="form-stack" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+  @if (modo() === 'admin') {
+    <!-- Sprint 4: el administrador elige el perfil del usuario nuevo con dos radio buttons -->
+    <fieldset class="perfil">
+      <legend>Perfil del nuevo usuario</legend>
+      <div class="seg">
+        <label class="seg-opt">
+          <input type="radio" formControlName="perfil" value="usuario" />
+          <app-icono nombre="usuario" [tam]="14" />
+          Usuario
+        </label>
+        <label class="seg-opt admin">
+          <input type="radio" formControlName="perfil" value="administrador" />
+          <app-icono nombre="escudo" [tam]="14" />
+          Administrador
+        </label>
+      </div>
+    </fieldset>
+  }
+
   <div class="field">
-    <label for="imagenPerfil">Tu imagen de perfil</label>
+    <label for="imagenPerfil">{{ modo() === 'admin' ? 'Imagen de perfil' : 'Tu imagen de perfil' }}</label>
     <div class="foto">
       <label for="imagenPerfil" class="cuadro" [class.con-foto]="preview()" title="Elegir imagen">
         @if (preview(); as src) {
@@ -189,18 +208,25 @@
     <div class="hint">{{ descripcion().length }} / 200 caracteres</div>
   </div>
 
-  <div>
-    <label class="check">
-      <input type="checkbox" formControlName="terminos" />
-      <span>Acepto las normas de convivencia y la política de privacidad.</span>
-    </label>
-    @if (invalido('terminos')) {
-      <div class="error terminos">Tenés que aceptar las normas para crear la cuenta.</div>
-    }
-  </div>
+  @if (modo() === 'registro') {
+    <div>
+      <label class="check">
+        <input type="checkbox" formControlName="terminos" />
+        <span>Acepto las normas de convivencia y la política de privacidad.</span>
+      </label>
+      @if (invalido('terminos')) {
+        <div class="error terminos">Tenés que aceptar las normas para crear la cuenta.</div>
+      }
+    </div>
+  }
 
   <button type="submit" class="btn btn-cyan btn-block" [disabled]="enviando()">
-    <span>{{ enviando() ? 'Creando cuenta…' : 'Crear cuenta' }}</span>
-    <app-icono nombre="destellos" />
+    @if (modo() === 'admin') {
+      <span>{{ enviando() ? 'Creando usuario…' : 'Crear usuario' }}</span>
+      <app-icono nombre="usuario-mas" />
+    } @else {
+      <span>{{ enviando() ? 'Creando cuenta…' : 'Crear cuenta' }}</span>
+      <app-icono nombre="destellos" />
+    }
   </button>
 </form>

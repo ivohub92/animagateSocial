@@ -13,4 +13,19 @@ export class UsuariosService {
   listar(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(this.url);
   }
+
+  /** Alta: FormData con los campos del registro + perfil ("usuario" | "administrador"). */
+  crear(datos: FormData): Observable<Usuario> {
+    return this.http.post<Usuario>(this.url, datos);
+  }
+
+  /** Baja lógica: el usuario queda deshabilitado y no puede ingresar. */
+  deshabilitar(id: string): Observable<Usuario> {
+    return this.http.delete<Usuario>(`${this.url}/${id}`);
+  }
+
+  /** Alta lógica: vuelve a habilitar a un usuario deshabilitado. */
+  habilitar(id: string): Observable<Usuario> {
+    return this.http.post<Usuario>(`${this.url}/${id}/habilitar`, {});
+  }
 }

@@ -1,8 +1,10 @@
-import { Component, OnDestroy, computed, inject, output, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, mensajeDeError } from '../../../core/auth.service';
+import { Perfil, Usuario } from '../../../core/models';
+import { UsuariosService } from '../../../core/usuarios.service';
 import {
   PASSWORD_PATTERN,
   coincidenValidator,
@@ -35,10 +37,20 @@ const CAMPOS_API = [
   templateUrl: './registro-form.html',
   styleUrl: './registro-form.scss',
 })
-export class RegistroForm implements OnDestroy {
+export class RegistroForm implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
+  private readonly usuarios = inject(UsuariosService);
   private readonly modal = inject(ModalService);
   private readonly router = inject(Router);
+
+  /**
+   * registro: la pestaña "Registrarse" (crea la cuenta e inicia sesión).
+   * admin: el formulario del dashboard (Sprint 4): elige el perfil con dos radio buttons, crea
+   * el usuario con POST /usuarios y no toca la sesión del administrador.
+   */
+  readonly modo = input<'registro' | 'admin'>('registro');
+  /** Solo en modo admin: el usuario recién creado, para sumarlo al listado. */
+  readonly creado = output<Usuario>();
 
 
   readonly previewCambio = output<string | null>();
@@ -71,6 +83,7 @@ export class RegistroForm implements OnDestroy {
       ],
       descripcion: ['', Validators.maxLength(200)],
       terminos: [false, Validators.requiredTrue],
+      perfil: ['usuario' as Perfil],
     },
     { validators: coincidenValidator('password', 'repetirPassword') },
   );
@@ -94,6 +107,12 @@ export class RegistroForm implements OnDestroy {
   });
   protected readonly etiquetaFuerza = computed(() => NIVELES[this.fuerza()]);
   protected readonly barras = [1, 2, 3, 4];
+
+  ngOnInit(): void {
+    // Las normas las acepta cada persona al registrarse: en el alta del admin no se piden
+    // (un control deshabilitado no cuenta para la validez del formulario).
+    if (this.modo() === 'admin') this.form.controls.terminos.disable();
+  }
 
   protected invalido(campo: keyof typeof this.form.controls): boolean {
     const c = this.form.controls[campo];
@@ -149,6 +168,10 @@ export class RegistroForm implements OnDestroy {
     if (imagen) datos.append('imagenPerfil', imagen);
 
     this.enviando.set(true);
+    if (this.modo() === 'admin') {
+      this.crearComoAdmin(datos, valores.perfil);
+      return;
+    }
     this.auth.registro(datos).subscribe({
       next: (usuario) => {
         this.enviando.set(false);
@@ -161,6 +184,29 @@ export class RegistroForm implements OnDestroy {
       error: (err) => {
         this.enviando.set(false);
         this.modal.error('No se pudo crear la cuenta', mensajeDeError(err));
+      },
+    });
+  }
+
+  /** Alta desde el dashboard: POST /usuarios con el perfil elegido; el form queda listo para otro. */
+  private crearComoAdmin(datos: FormData, perfil: Perfil): void {
+    datos.append('perfil', perfil);
+    this.usuarios.crear(datos).subscribe({
+      next: (usuario) => {
+        this.enviando.set(false);
+        this.modal.exito(
+          'Usuario creado',
+          `@${usuario.nombreUsuario} ya puede ingresar como ${usuario.perfil === 'administrador' ? 'administrador' : 'usuario'}.`,
+        );
+        this.form.reset();
+        this.liberarPreview();
+        this.imagen.set(null);
+        this.preview.set(null);
+        this.creado.emit(usuario);
+      },
+      error: (err) => {
+        this.enviando.set(false);
+        this.modal.error('No se pudo crear el usuario', mensajeDeError(err));
       },
     });
   }
