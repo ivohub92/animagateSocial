@@ -1,0 +1,228 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+
+  @media (max-width: 560px) {
+    padding: 16px;
+  }
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 20px;
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 26px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+  }
+}
+
+.numeros {
+  display: flex;
+  gap: 12px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 96px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1px solid #1e293b;
+    background: rgba(2, 6, 23, 0.6);
+  }
+
+  .num {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .lbl {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  @media (max-width: 560px) {
+    width: 100%;
+    gap: 8px;
+
+    > div {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 6px;
+    }
+
+    .lbl {
+      font-size: 9px;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+  }
+}
+
+// "Administradores" no entra en un celular: ahí se muestra "Admins".
+.corto {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .numeros .largo {
+    display: none;
+  }
+
+  .numeros .corto {
+    display: inline;
+  }
+}
+
+.cyan {
+  color: var(--anime-cyan);
+}
+
+.rosa {
+  color: var(--anime-pink);
+}
+
+.ambar {
+  color: #fbbf24;
+}
+
+// Tabla con grid: en pantallas chicas cada fila pasa a ser una tarjeta.
+.tabla {
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.8fr);
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+  font-size: 13px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &.encabezado {
+    padding-block: 10px;
+    background: rgba(2, 6, 23, 0.6);
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  &.inactivo {
+    opacity: 0.6;
+  }
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .nombre {
+    font-weight: 700;
+    color: #e2e8f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .handle {
+    font-size: 12px;
+    color: var(--anime-cyan);
+  }
+}
+
+.correo {
+  color: #cbd5e1;
+  overflow-wrap: anywhere;
+}
+
+.alta {
+  color: #94a3b8;
+}
+
+.tag-admin {
+  gap: 4px;
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--anime-pink);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.activo {
+    color: #34d399;
+  }
+}
+
+@media (max-width: 760px) {
+  .fila {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 14px 16px;
+
+    &.encabezado {
+      display: none;
+    }
+
+    .usuario {
+      grid-column: 1 / -1;
+    }
+
+    // Sin encabezado de columnas, cada dato lleva su título.
+    [data-titulo]::before {
+      content: attr(data-titulo);
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+  }
+}

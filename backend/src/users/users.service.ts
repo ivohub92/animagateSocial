@@ -11,6 +11,12 @@ export class UsersService {
     return this.userModel.create(data);
   }
 
+  /** Todos los usuarios, los más nuevos primero. toJSON saca la contraseña de cada uno. */
+  async listar() {
+    const usuarios = await this.userModel.find().sort({ createdAt: -1 }).exec();
+    return usuarios.map((u) => u.toJSON());
+  }
+
   findById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
   }

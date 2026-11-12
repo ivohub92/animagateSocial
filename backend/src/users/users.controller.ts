@@ -1,5 +1,17 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AdminGuard } from '../common/admin.guard.js';
+import { UsuarioActualGuard } from '../common/usuario-actual.js';
+import { UsersService } from './users.service.js';
 
-// Las rutas de administración de usuarios (listar, alta, baja lógica) se implementan en el Sprint 4.
+/** Administración de usuarios (Sprint 4): todas las rutas son solo para administradores. */
 @Controller('usuarios')
-export class UsersController {}
+@UseGuards(UsuarioActualGuard, AdminGuard)
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  /** GET /usuarios → 200 con todos los usuarios (sin contraseña); 401 sin token; 403 si no es admin */
+  @Get()
+  listar() {
+    return this.usersService.listar();
+  }
+}

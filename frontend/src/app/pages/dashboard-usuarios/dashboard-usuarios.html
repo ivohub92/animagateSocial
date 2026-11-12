@@ -1,0 +1,58 @@
+<div class="dashboard">
+  <section class="cabecera glass-panel">
+    <div>
+      <div class="kicker"><span class="punto"></span>Dashboard · Administración</div>
+      <h1>Usuarios</h1>
+      <p class="muted">Todas las cuentas de AnimeGate. Esta sección solo la ven los administradores.</p>
+    </div>
+    <div class="numeros">
+      <div><span class="num cyan">{{ total() }}</span><span class="lbl">Usuarios</span></div>
+      <div><span class="num ambar">{{ administradores() }}</span><span class="lbl"><span class="largo">Administradores</span><span class="corto">Admins</span></span></div>
+      <div><span class="num rosa">{{ deshabilitados() }}</span><span class="lbl">Deshabilitados</span></div>
+    </div>
+  </section>
+
+  @if (cargando()) {
+    <p class="muted">Cargando usuarios…</p>
+  } @else if (error(); as e) {
+    <div class="empty">
+      <div class="kicker"><span class="punto"></span>Error</div>
+      <h3>No se pudo cargar el listado</h3>
+      <p>{{ e }}</p>
+      <button class="btn btn-primary" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="tabla glass-panel" role="table" aria-label="Listado de usuarios">
+      <div class="fila encabezado" role="row">
+        <span role="columnheader">Usuario</span>
+        <span role="columnheader">Correo</span>
+        <span role="columnheader">Perfil</span>
+        <span role="columnheader">Estado</span>
+        <span role="columnheader">Alta</span>
+      </div>
+      @for (u of usuarios(); track u._id) {
+        <div class="fila" role="row" [class.inactivo]="!u.activo">
+          <span class="usuario" role="cell">
+            <app-avatar [usuario]="u" [size]="36" [variante]="u._id === auth.usuario()?._id ? 'propio' : 'otro'" />
+            <span>
+              <span class="nombre">{{ u.nombre }} {{ u.apellido }}</span>
+              <span class="handle">&#64;{{ u.nombreUsuario }}{{ u._id === auth.usuario()?._id ? ' · vos' : '' }}</span>
+            </span>
+          </span>
+          <span class="correo" role="cell" data-titulo="Correo">{{ u.correo }}</span>
+          <span role="cell" data-titulo="Perfil">
+            @if (u.perfil === 'administrador') {
+              <span class="tag tag-admin"><app-icono nombre="escudo" [tam]="11" /> Administrador</span>
+            } @else {
+              <span class="tag tag-outline">Usuario</span>
+            }
+          </span>
+          <span role="cell" data-titulo="Estado">
+            <span class="estado" [class.activo]="u.activo">{{ u.activo ? 'Activo' : 'Deshabilitado' }}</span>
+          </span>
+          <span class="alta" role="cell" data-titulo="Alta">{{ u.createdAt | date: 'd/MM/yyyy' }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

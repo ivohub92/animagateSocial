@@ -50,6 +50,11 @@ nav {
       background: rgba(255, 255, 255, 0.04);
     }
 
+    // El enlace del panel de administración, en ámbar como los botones de administrador.
+    &.admin {
+      color: #fbbf24;
+    }
+
     &.activo {
       color: var(--anime-cyan);
       background: rgba(0, 240, 255, 0.08);
@@ -132,10 +137,15 @@ nav {
   nav {
     order: 3;
     width: 100%;
+    gap: 4px;
 
     a {
       flex: 1;
+      min-width: 0;
       justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+      white-space: nowrap;
     }
   }
 
@@ -146,5 +156,17 @@ nav {
   .user:has(.who) {
     padding-left: 0;
     border-left: 0;
+  }
+}
+
+// En celulares angostos (con el enlace "Usuarios" del admin son 3) los enlaces van sin ícono.
+@media (max-width: 420px) {
+  nav a {
+    font-size: 10px;
+    letter-spacing: 0.03em;
+
+    app-icono {
+      display: none;
+    }
   }
 }

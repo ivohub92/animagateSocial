@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { Router, Routes } from '@angular/router';
+import { adminGuard } from './core/admin.guard';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,14 @@ export const routes: Routes = [
     title: 'Publicación · AnimeGate',
     loadComponent: () =>
       import('./pages/publicacion-detalle/publicacion-detalle').then((m) => m.PublicacionDetalle),
+  },
+  {
+    // Sprint 4: panel de usuarios, solo para administradores.
+    path: 'dashboard/usuarios',
+    title: 'Usuarios · AnimeGate',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/dashboard-usuarios/dashboard-usuarios').then((m) => m.DashboardUsuarios),
   },
   {
     path: 'mi-perfil',

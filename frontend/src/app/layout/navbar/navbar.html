@@ -13,6 +13,12 @@
       <app-icono nombre="usuario" />
       Mi perfil
     </a>
+    @if (auth.usuario()?.perfil === 'administrador') {
+      <a routerLink="/dashboard/usuarios" routerLinkActive="activo" class="admin">
+        <app-icono nombre="escudo" />
+        Usuarios
+      </a>
+    }
   </nav>
 
   @if (auth.usuario(); as u) {
