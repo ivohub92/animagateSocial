@@ -1,0 +1,157 @@
+<div class="dashboard">
+  <app-dashboard-tabs />
+
+  <section class="cabecera glass-panel">
+    <div class="kicker"><span class="punto"></span>Dashboard · Administración</div>
+    <h1>Estadísticas</h1>
+    <p class="muted">Actividad de la comunidad en el lapso elegido. El filtro vale para los tres gráficos.</p>
+
+    <!-- Filtro de lapso: atajos y rango personalizado -->
+    <div class="filtros">
+      <div class="seg" role="radiogroup" aria-label="Lapso de tiempo">
+        @for (a of atajos; track a.valor) {
+          <label class="seg-opt">
+            <input type="radio" name="lapso" [value]="a.valor" [checked]="atajo() === a.valor" (change)="elegirAtajo(a.valor)" />
+            {{ a.texto }}
+          </label>
+        }
+      </div>
+
+      @if (atajo() === 'personalizado') {
+        <form class="rango" (submit)="$event.preventDefault(); cargar()">
+          <label>
+            Desde
+            <input class="input" type="date" [value]="desde()" [max]="hasta()" (change)="cambiarFecha('desde', $event)" />
+          </label>
+          <label>
+            Hasta
+            <input class="input" type="date" [value]="hasta()" [min]="desde()" [max]="hoy" (change)="cambiarFecha('hasta', $event)" />
+          </label>
+          <button type="submit" class="btn btn-primary" [disabled]="!!errorLapso() || cargando()">Aplicar</button>
+        </form>
+        @if (errorLapso(); as e) {
+          <p class="error-lapso">{{ e }}</p>
+        }
+      }
+    </div>
+  </section>
+
+  @if (error(); as e) {
+    <div class="empty">
+      <div class="kicker"><span class="punto"></span>Error</div>
+      <h3>No se pudieron cargar las estadísticas</h3>
+      <p>{{ e }}</p>
+      <button class="btn btn-primary" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  <!-- Mientras recarga, los gráficos se quedan con lo anterior un poco transparentes -->
+  <div class="graficos" [class.recargando]="cargando()" [attr.aria-busy]="cargando()">
+    <!-- 2) Comentarios en el lapso: línea -->
+    <section class="tarjeta glass-panel ancha" aria-labelledby="t-comentarios">
+      <header>
+        <div>
+          <h2 id="t-comentarios">Comentarios en el lapso</h2>
+          <p class="muted">Cantidad de comentarios por día.</p>
+        </div>
+        <div class="indicadores">
+          <div><span class="valor">{{ comentarios()?.total ?? '–' }}</span><span class="etiqueta">Comentarios</span></div>
+          <div><span class="valor">{{ promedioDiario() | number: '1.0-1' }}</span><span class="etiqueta">Promedio por día</span></div>
+        </div>
+      </header>
+      <div class="lienzo alto" [hidden]="!comentarios()?.total">
+        <canvas #linea role="img" aria-label="Gráfico de líneas: comentarios por día"></canvas>
+      </div>
+      @if (comentarios() && !comentarios()!.total) {
+        <p class="vacio">No hubo comentarios en este lapso.</p>
+      }
+      @if (comentarios()?.total) {
+        <details>
+          <summary>Ver tabla</summary>
+          <table>
+            <thead><tr><th>Día</th><th>Comentarios</th></tr></thead>
+            <tbody>
+              @for (d of comentarios()!.dias; track d.fecha) {
+                <tr><td>{{ d.fecha.split('-').reverse().join('/') }}</td><td>{{ d.cantidad }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </details>
+      }
+    </section>
+
+    <!-- 1) Publicaciones por usuario: barras -->
+    <section class="tarjeta glass-panel" aria-labelledby="t-publicaciones">
+      <header>
+        <div>
+          <h2 id="t-publicaciones">Publicaciones por usuario</h2>
+          <p class="muted">{{ publicaciones()?.total ?? 0 }} publicaciones en el lapso, de mayor a menor.</p>
+        </div>
+      </header>
+      <div class="lienzo" [hidden]="!publicaciones()?.total">
+        <canvas #barras role="img" aria-label="Gráfico de barras: publicaciones por usuario"></canvas>
+      </div>
+      @if (publicaciones() && !publicaciones()!.total) {
+        <p class="vacio">No hubo publicaciones en este lapso.</p>
+      }
+      @if (publicaciones()?.total) {
+        @if (publicaciones()!.items.length > 15) {
+          <p class="nota">El gráfico muestra los 15 usuarios con más publicaciones; la tabla, todos.</p>
+        }
+        <details>
+          <summary>Ver tabla</summary>
+          <table>
+            <thead><tr><th>Usuario</th><th>Publicaciones</th></tr></thead>
+            <tbody>
+              @for (i of publicaciones()!.items; track i.usuario._id) {
+                <tr><td>{{ i.usuario.nombre }} {{ i.usuario.apellido }} · &#64;{{ i.usuario.nombreUsuario }}</td><td>{{ i.cantidad }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </details>
+      }
+    </section>
+
+    <!-- 3) Comentarios por publicación: torta -->
+    <section class="tarjeta glass-panel" aria-labelledby="t-por-publicacion">
+      <header>
+        <div>
+          <h2 id="t-por-publicacion">Comentarios por publicación</h2>
+          <p class="muted">Las 5 publicaciones más comentadas en el lapso.</p>
+        </div>
+      </header>
+      <div class="torta" [hidden]="!porPublicacion()?.total">
+        <div class="lienzo dona">
+          <canvas #torta role="img" aria-label="Gráfico de torta: comentarios por publicación"></canvas>
+          <div class="centro"><span class="valor">{{ porPublicacion()?.total }}</span><span class="etiqueta">comentarios</span></div>
+        </div>
+        <!-- Leyenda con nombres, cantidades y porcentajes: el color nunca es la única pista -->
+        <ul class="leyenda">
+          @for (p of porciones(); track p.etiqueta) {
+            <li>
+              <span class="muestra" [style.background]="p.color"></span>
+              <span class="nombre">{{ p.etiqueta }} @if (p.detalle) { <small>{{ p.detalle }}</small> }</span>
+              <span class="cifra">{{ p.cantidad }} <small>· {{ p.porcentaje | number: '1.0-0' }}%</small></span>
+            </li>
+          }
+        </ul>
+      </div>
+      @if (porPublicacion() && !porPublicacion()!.total) {
+        <p class="vacio">No hubo comentarios en este lapso.</p>
+      }
+      @if (porPublicacion()?.total) {
+        <details>
+          <summary>Ver tabla</summary>
+          <table>
+            <thead><tr><th>Publicación</th><th>Comentarios</th></tr></thead>
+            <tbody>
+              @for (i of porPublicacion()!.items; track i.publicacion._id) {
+                <tr><td>{{ i.publicacion.titulo }}@if (i.publicacion.autor) { · &#64;{{ i.publicacion.autor }} }</td><td>{{ i.cantidad }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </details>
+      }
+    </section>
+  </div>
+</div>

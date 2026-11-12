@@ -43,6 +43,14 @@ export const routes: Routes = [
       import('./pages/dashboard-usuarios/dashboard-usuarios').then((m) => m.DashboardUsuarios),
   },
   {
+    // Sprint 4: estadísticas con gráficos, solo para administradores.
+    path: 'dashboard/estadisticas',
+    title: 'Estadísticas · AnimeGate',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/dashboard-estadisticas/dashboard-estadisticas').then((m) => m.DashboardEstadisticas),
+  },
+  {
     path: 'mi-perfil',
     title: 'Mi perfil · AnimeGate',
     loadComponent: () => import('./pages/mi-perfil/mi-perfil').then((m) => m.MiPerfil),

@@ -14,9 +14,9 @@
       Mi perfil
     </a>
     @if (auth.usuario()?.perfil === 'administrador') {
-      <a routerLink="/dashboard/usuarios" routerLinkActive="activo" class="admin">
+      <a routerLink="/dashboard/usuarios" class="admin" [class.activo]="enDashboard()">
         <app-icono nombre="escudo" />
-        Usuarios
+        Dashboard
       </a>
     }
   </nav>

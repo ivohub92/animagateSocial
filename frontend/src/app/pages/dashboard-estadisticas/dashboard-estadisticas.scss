@@ -1,0 +1,286 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+
+  @media (max-width: 560px) {
+    padding: 16px;
+  }
+}
+
+.cabecera {
+  padding: 24px;
+  border-radius: 20px;
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 26px;
+  }
+
+  > p {
+    margin: 0;
+    font-size: 13px;
+  }
+}
+
+// Filtros: una sola fila arriba de los gráficos.
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin-top: 18px;
+
+  .seg {
+    flex-wrap: wrap;
+  }
+}
+
+.rango {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  .input {
+    min-height: 38px;
+    padding: 6px 10px;
+    color-scheme: dark;
+  }
+
+  .btn {
+    padding: 10px 16px;
+  }
+}
+
+.error-lapso {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent-700);
+}
+
+.graficos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  transition: opacity 0.2s;
+
+  &.recargando {
+    opacity: 0.5;
+  }
+
+  @media (max-width: 860px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: 20px;
+
+  &.ancha {
+    grid-column: 1 / -1;
+  }
+
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  h2 {
+    margin: 0 0 2px;
+    font-size: 15px;
+  }
+
+  header p {
+    margin: 0;
+    font-size: 12px;
+  }
+}
+
+// Cifras destacadas del gráfico de comentarios.
+.indicadores {
+  display: flex;
+  gap: 10px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 1px solid #1e293b;
+    background: rgba(2, 6, 23, 0.6);
+  }
+}
+
+.valor {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.etiqueta {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.lienzo {
+  position: relative;
+  height: 220px;
+
+  &.alto {
+    height: 260px;
+  }
+}
+
+.torta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.dona {
+  flex: none;
+  width: 190px;
+  height: 190px;
+  margin: 0 auto;
+
+  // El total en el centro de la dona.
+  .centro {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+}
+
+.leyenda {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .muestra {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .nombre {
+    flex: 1;
+    min-width: 0;
+    color: #e2e8f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    small {
+      color: #64748b;
+    }
+  }
+
+  .cifra {
+    flex: none;
+    font-weight: 700;
+    color: #e2e8f0;
+    font-variant-numeric: tabular-nums;
+
+    small {
+      font-weight: 400;
+      color: #94a3b8;
+    }
+  }
+}
+
+.vacio,
+.nota {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-neutral-600);
+}
+
+.vacio {
+  padding: 28px 0;
+  text-align: center;
+}
+
+// Tabla con los mismos datos del gráfico (accesible y para leer valores exactos).
+details {
+  font-size: 12px;
+
+  summary {
+    cursor: pointer;
+    color: var(--anime-cyan);
+    font-weight: 600;
+  }
+
+  table {
+    width: 100%;
+    margin-top: 8px;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #1e293b;
+    text-align: left;
+  }
+
+  th {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  td:last-child,
+  th:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}

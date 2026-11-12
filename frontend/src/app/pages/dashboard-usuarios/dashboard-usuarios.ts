@@ -6,6 +6,7 @@ import { UsuariosService } from '../../core/usuarios.service';
 import { Avatar } from '../../shared/avatar/avatar';
 import { Icono } from '../../shared/icono/icono';
 import { ModalService } from '../../shared/modal/modal.service';
+import { DashboardTabs } from '../../shared/dashboard-tabs/dashboard-tabs';
 import { RegistroForm } from '../acceso/registro-form/registro-form';
 
 /**
@@ -14,7 +15,7 @@ import { RegistroForm } from '../acceso/registro-form/registro-form';
  */
 @Component({
   selector: 'app-dashboard-usuarios',
-  imports: [DatePipe, Avatar, Icono, RegistroForm],
+  imports: [DatePipe, Avatar, Icono, RegistroForm, DashboardTabs],
   templateUrl: './dashboard-usuarios.html',
   styleUrl: './dashboard-usuarios.scss',
 })
