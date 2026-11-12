@@ -21,6 +21,10 @@ export class Comentario {
   @Prop({ default: false })
   modificado: boolean;
 
+  /** Baja lógica: cuando se da de baja la publicación, sus comentarios también (Sprint 4). */
+  @Prop({ default: true })
+  activa: boolean;
+
   createdAt: Date;
 }
 

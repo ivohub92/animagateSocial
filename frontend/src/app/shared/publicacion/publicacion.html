@@ -60,9 +60,16 @@
     </button>
 
     @if (puedeEliminar()) {
-      <button type="button" class="eliminar" [disabled]="procesando()" (click)="eliminar()">
-        <app-icono nombre="papelera" [tam]="15" />
-        Eliminar
+      <button
+        type="button"
+        class="eliminar"
+        [class.admin]="bajaDeAdmin()"
+        [disabled]="procesando()"
+        [title]="bajaDeAdmin() ? 'Dar de baja como administrador' : 'Eliminar mi publicación'"
+        (click)="eliminar()"
+      >
+        <app-icono [nombre]="bajaDeAdmin() ? 'escudo' : 'papelera'" [tam]="15" />
+        {{ bajaDeAdmin() ? 'Dar de baja' : 'Eliminar' }}
       </button>
     }
   </div>

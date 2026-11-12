@@ -11,6 +11,12 @@ import { Publicacion } from './schemas/publicacion.schema.js';
 /** Datos del autor que viajan con cada comentario (nunca la contraseña). */
 const CAMPOS_AUTOR = 'nombre apellido nombreUsuario imagenPerfil';
 
+/**
+ * Solo comentarios activos. Se usa $ne: false (y no activa: true) para que también entren
+ * los comentarios creados antes de que existiera el campo.
+ */
+const ACTIVO = { activa: { $ne: false } };
+
 @Injectable()
 export class ComentariosService {
   constructor(
@@ -21,7 +27,7 @@ export class ComentariosService {
   /** Comentarios de una publicación, los más recientes primero, paginados. */
   async listar(idPublicacion: string, filtros: ListarComentariosDto) {
     await this.verificarPublicacion(idPublicacion);
-    const condicion = { publicacion: new Types.ObjectId(idPublicacion) };
+    const condicion = { publicacion: new Types.ObjectId(idPublicacion), ...ACTIVO };
 
     const [items, total] = await Promise.all([
       this.comentarioModel
@@ -67,7 +73,7 @@ export class ComentariosService {
   ) {
     await this.verificarPublicacion(idPublicacion);
     const comentario = await this.comentarioModel
-      .findOne({ _id: idComentario, publicacion: new Types.ObjectId(idPublicacion) })
+      .findOne({ _id: idComentario, publicacion: new Types.ObjectId(idPublicacion), ...ACTIVO })
       .exec();
     if (!comentario) throw new NotFoundException('El comentario no existe');
     if (String(comentario.usuario) !== String(usuario._id)) {
@@ -93,7 +99,8 @@ export class ComentariosService {
   }
 }
 
+/** Saca de la respuesta los campos internos (__v y la marca de baja lógica). */
 function sinVersion<T extends object>(doc: T) {
-  const { __v: _v, ...resto } = doc as T & { __v?: number };
+  const { __v: _v, activa: _activa, ...resto } = doc as T & { __v?: number; activa?: boolean };
   return resto;
 }

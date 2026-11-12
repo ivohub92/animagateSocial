@@ -10,6 +10,7 @@ import { saveImage } from '../common/image-upload.js';
 import { Perfil, UserDocument } from '../users/schemas/user.schema.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
+import { Comentario } from './schemas/comentario.schema.js';
 import { Publicacion } from './schemas/publicacion.schema.js';
 
 /** Datos del autor que se muestran junto a cada publicación. */
@@ -22,6 +23,8 @@ export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name)
     private readonly publicacionModel: Model<Publicacion>,
+    @InjectModel(Comentario.name)
+    private readonly comentarioModel: Model<Comentario>,
   ) {}
 
   async crear(dto: CrearPublicacionDto, autor: UserDocument, imagen?: Express.Multer.File) {
@@ -75,7 +78,10 @@ export class PublicacionesService {
     return this.aRespuesta(p, idUsuarioActual);
   }
 
-  /** Baja lógica: solo el autor o un administrador. */
+  /**
+   * Baja lógica: solo el autor o un administrador (que puede dar de baja cualquiera).
+   * La publicación y todos sus comentarios dejan de estar disponibles.
+   */
   async eliminar(id: string, usuario: UserDocument) {
     const publicacion = await this.publicacionModel.findOne({ _id: id, activa: true }).exec();
     if (!publicacion) throw new NotFoundException('La publicación no existe');
@@ -87,7 +93,12 @@ export class PublicacionesService {
 
     publicacion.activa = false;
     await publicacion.save();
-    return { mensaje: 'Publicación eliminada' };
+    // Los comentarios quedan en la base, pero dados de baja junto con su publicación.
+    await this.comentarioModel.updateMany({ publicacion: publicacion._id }, { activa: false }).exec();
+
+    return {
+      mensaje: esAutor ? 'Publicación eliminada' : 'Publicación dada de baja por un administrador',
+    };
   }
 
   /** Agrega un me gusta. La condición del update garantiza que sea uno por usuario. */

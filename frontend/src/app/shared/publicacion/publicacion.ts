@@ -48,9 +48,10 @@ export class PublicacionCard {
   protected readonly esMia = computed(
     () => this.publicacion().usuario?._id === this.auth.usuario()?._id,
   );
-  protected readonly puedeEliminar = computed(
-    () => this.esMia() || this.auth.usuario()?.perfil === 'administrador',
-  );
+  protected readonly esAdmin = computed(() => this.auth.usuario()?.perfil === 'administrador');
+  protected readonly puedeEliminar = computed(() => this.esMia() || this.esAdmin());
+  /** Un administrador dando de baja una publicación ajena (Sprint 4): otro botón y otro aviso. */
+  protected readonly bajaDeAdmin = computed(() => !this.esMia() && this.esAdmin());
 
   protected alternarMeGusta(): void {
     if (!this.logueado() || this.procesando()) return;
@@ -75,18 +76,30 @@ export class PublicacionCard {
   }
 
   protected async eliminar(): Promise<void> {
-    const confirmado = await this.modal.confirmar(
-      'Eliminar publicación',
-      `¿Querés eliminar "${this.publicacion().titulo}"? Esta acción no se puede deshacer.`,
-      'Eliminar',
-    );
+    const p = this.publicacion();
+    const admin = this.bajaDeAdmin();
+    const confirmado = admin
+      ? await this.modal.confirmar(
+          'Dar de baja la publicación',
+          `Como administrador vas a dar de baja "${p.titulo}", de @${p.usuario.nombreUsuario}. ` +
+            'Va a dejar de estar disponible, junto con sus comentarios.',
+          'Dar de baja',
+        )
+      : await this.modal.confirmar(
+          'Eliminar publicación',
+          `¿Querés eliminar "${p.titulo}"? También se van sus comentarios. Esta acción no se puede deshacer.`,
+          'Eliminar',
+        );
     if (!confirmado) return;
 
     this.procesando.set(true);
     this.servicio.eliminar(this.publicacion()._id).subscribe({
       next: () => {
         this.procesando.set(false);
-        this.modal.exito('Publicación eliminada', 'La publicación ya no aparece en la cronología.');
+        this.modal.exito(
+          admin ? 'Publicación dada de baja' : 'Publicación eliminada',
+          'La publicación y sus comentarios ya no están disponibles.',
+        );
         this.eliminada.emit(this.publicacion()._id);
       },
       error: (err) => {
