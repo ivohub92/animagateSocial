@@ -59,24 +59,6 @@ export class UsuarioActualGuard implements CanActivate {
   }
 }
 
-/**
- * Para rutas públicas que cambian un poco si hay sesión (por ejemplo, meGustaPorMi en el
- * listado): si el token sirve deja el usuario; si no, sigue sin usuario y nunca responde 401.
- */
-@Injectable()
-export class UsuarioOpcionalGuard implements CanActivate {
-  constructor(
-    private readonly jwt: JwtService,
-    private readonly usersService: UsersService,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<RequestConUsuario>();
-    req.usuario = (await usuarioDelToken(req, this.jwt, this.usersService)).usuario ?? undefined;
-    return true;
-  }
-}
-
 /** Inyecta en el método del controlador el usuario que dejó el guard. */
 export const UsuarioActual = createParamDecorator(
   (_data: unknown, context: ExecutionContext) =>

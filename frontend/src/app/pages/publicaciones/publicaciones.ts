@@ -124,6 +124,6 @@ export class Publicaciones {
 
   protected salir(): void {
     this.auth.logout();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }

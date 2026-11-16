@@ -13,11 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { imageUploadOptions } from '../common/image-upload.js';
 import { ParseObjectIdPipe } from '../common/parse-object-id.pipe.js';
-import {
-  UsuarioActual,
-  UsuarioActualGuard,
-  UsuarioOpcionalGuard,
-} from '../common/usuario-actual.js';
+import { UsuarioActual, UsuarioActualGuard } from '../common/usuario-actual.js';
 import type { UserDocument } from '../users/schemas/user.schema.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
@@ -27,18 +23,21 @@ import { PublicacionesService } from './publicaciones.service.js';
 export class PublicacionesController {
   constructor(private readonly publicacionesService: PublicacionesService) {}
 
-  /** GET /publicaciones?orden=fecha|meGusta&offset=0&limit=10&usuario=<id> → 200 (el token es opcional) */
+  /**
+   * GET /publicaciones?orden=fecha|meGusta&offset=0&limit=10&usuario=<id> → 200; 401 sin sesión.
+   * "Solo se puede acceder a la aplicación estando registrado o logueado": leer también exige token.
+   */
   @Get()
-  @UseGuards(UsuarioOpcionalGuard)
-  listar(@Query() filtros: ListarPublicacionesDto, @UsuarioActual() usuario?: UserDocument) {
-    return this.publicacionesService.listar(filtros, usuario ? String(usuario._id) : undefined);
+  @UseGuards(UsuarioActualGuard)
+  listar(@Query() filtros: ListarPublicacionesDto, @UsuarioActual() usuario: UserDocument) {
+    return this.publicacionesService.listar(filtros, String(usuario._id));
   }
 
-  /** GET /publicaciones/:id → 200 con una publicación (para verla en grande), 404 si no existe */
+  /** GET /publicaciones/:id → 200 con una publicación (para verla en grande); 404 si no existe; 401 sin sesión */
   @Get(':id')
-  @UseGuards(UsuarioOpcionalGuard)
-  obtener(@Param('id', ParseObjectIdPipe) id: string, @UsuarioActual() usuario?: UserDocument) {
-    return this.publicacionesService.obtener(id, usuario ? String(usuario._id) : undefined);
+  @UseGuards(UsuarioActualGuard)
+  obtener(@Param('id', ParseObjectIdPipe) id: string, @UsuarioActual() usuario: UserDocument) {
+    return this.publicacionesService.obtener(id, String(usuario._id));
   }
 
   /** POST /publicaciones (multipart: titulo, mensaje, imagen opcional) → 201 */

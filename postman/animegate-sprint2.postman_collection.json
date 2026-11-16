@@ -635,7 +635,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones",
-            "description": "Sin parámetros: orden por fecha, offset 0, limit 10. Devuelve { items, total, offset, limit }."
+            "description": "Sin parámetros: orden por fecha, offset 0, limit 10. Devuelve { items, total, offset, limit }.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -655,11 +662,39 @@
           ]
         },
         {
+          "name": "Listar sin sesión (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones",
+            "description": "\"Solo se puede acceder a la aplicación estando registrado o logueado\": leer también exige token.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Pide iniciar sesión', () => pm.expect(pm.response.json().message).to.include('iniciar sesión'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Paginar: limit=1 (200)",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?offset=0&limit=1",
-            "description": "Primera página de a 1."
+            "description": "Primera página de a 1.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -681,7 +716,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?offset=1&limit=1",
-            "description": "offset=1, limit=1: la siguiente, distinta de la anterior."
+            "description": "offset=1, limit=1: la siguiente, distinta de la anterior.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -703,7 +745,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?usuario={{idAna}}",
-            "description": "Solo las publicaciones de Ana."
+            "description": "Solo las publicaciones de Ana.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -724,7 +773,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?limit=100",
-            "description": "limit=100 → 400."
+            "description": "limit=100 → 400.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -744,7 +800,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?offset=-1",
-            "description": "offset=-1 → 400."
+            "description": "offset=-1 → 400.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -764,7 +827,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?orden=popular",
-            "description": "orden=popular → 400 (solo fecha o meGusta)."
+            "description": "orden=popular → 400 (solo fecha o meGusta).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -784,7 +854,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?usuario=abc",
-            "description": "usuario=abc → 400."
+            "description": "usuario=abc → 400.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -889,7 +966,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?orden=meGusta&limit=50",
-            "description": "orden=meGusta: primero las que tienen más."
+            "description": "orden=meGusta: primero las que tienen más.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -1111,7 +1195,14 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones?usuario={{idAna}}&limit=50",
-            "description": "Filtrando por Ana, la reseña eliminada no está."
+            "description": "Filtrando por Ana, la reseña eliminada no está.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {

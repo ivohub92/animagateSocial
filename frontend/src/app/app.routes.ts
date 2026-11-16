@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Router, Routes } from '@angular/router';
 import { adminGuard } from './core/admin.guard';
+import { sesionGuard } from './core/sesion.guard';
 
 export const routes: Routes = [
   {
@@ -24,6 +25,7 @@ export const routes: Routes = [
   {
     path: 'publicaciones',
     title: 'Publicaciones · AnimeGate',
+    canActivate: [sesionGuard],
     loadComponent: () =>
       import('./pages/publicaciones/publicaciones').then((m) => m.Publicaciones),
   },
@@ -31,6 +33,7 @@ export const routes: Routes = [
     // Sprint 3: una publicación en grande, con todos sus comentarios.
     path: 'publicaciones/:id',
     title: 'Publicación · AnimeGate',
+    canActivate: [sesionGuard],
     loadComponent: () =>
       import('./pages/publicacion-detalle/publicacion-detalle').then((m) => m.PublicacionDetalle),
   },
@@ -53,6 +56,7 @@ export const routes: Routes = [
   {
     path: 'mi-perfil',
     title: 'Mi perfil · AnimeGate',
+    canActivate: [sesionGuard],
     loadComponent: () => import('./pages/mi-perfil/mi-perfil').then((m) => m.MiPerfil),
   },
   { path: '**', redirectTo: '' },

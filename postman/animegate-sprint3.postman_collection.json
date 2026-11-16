@@ -503,7 +503,13 @@
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones/{{idPub}}",
             "description": "Una publicación sola, para verla en grande.",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -519,12 +525,39 @@
           ]
         },
         {
+          "name": "Ver la publicación sin sesión (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/publicaciones/{{idPub}}",
+            "description": "\"Solo se puede acceder a la aplicación estando registrado o logueado\": leer también exige token.",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Pide iniciar sesión', () => pm.expect(pm.response.json().message).to.include('iniciar sesión'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Publicación inexistente (404)",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones/000000000000000000000000",
             "description": "Id válido que no existe.",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -623,7 +656,13 @@
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
             "description": "Los más recientes primero: el de Ana arriba.",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -646,7 +685,13 @@
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios?limit=1&offset=1",
             "description": "La segunda página de a 1: el comentario más viejo (el de Beto).",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {
@@ -969,7 +1014,13 @@
             "method": "GET",
             "url": "{{baseUrl}}/publicaciones/{{idPub}}/comentarios",
             "description": "El comentario de Beto aparece con modificado: true.",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAna}}",
+                "type": "text"
+              }
+            ]
           },
           "event": [
             {

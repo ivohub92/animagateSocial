@@ -12,8 +12,9 @@ import { ListarComentariosDto } from './dto/listar-comentarios.dto.js';
 export class ComentariosController {
   constructor(private readonly comentariosService: ComentariosService) {}
 
-  /** GET ?offset=0&limit=20 → 200 { items, total, offset, limit }, los más recientes primero; 404 si no existe */
+  /** GET ?offset=0&limit=20 → 200 { items, total, offset, limit }, los más recientes primero; 404 si no existe; 401 sin sesión */
   @Get()
+  @UseGuards(UsuarioActualGuard)
   listar(
     @Param('publicacionId', ParseObjectIdPipe) publicacionId: string,
     @Query() filtros: ListarComentariosDto,
