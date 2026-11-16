@@ -38,16 +38,13 @@ import { DashboardTabs } from '../../shared/dashboard-tabs/dashboard-tabs';
 import { NombreCompletoPipe } from '../../shared/pipes/nombre-completo.pipe';
 import { PluralPipe } from '../../shared/pipes/plural.pipe';
 
-// Solo se registran las piezas de Chart.js que se usan (el bundle queda más liviano).
+
 Chart.register(
   BarController, BarElement, LineController, LineElement, PointElement, DoughnutController,
   ArcElement, CategoryScale, LinearScale, Tooltip, Filler,
 );
 
-/**
- * Colores de los gráficos, validados para el fondo oscuro (banda de luminosidad, contraste 3:1 y
- * separación para daltonismo). Las categorías van siempre en este orden; "Otras" es gris neutro.
- */
+
 const COLORES = ['#00a3b5', '#ff2a85', '#8b5cf6', '#c98500', '#199e70'];
 const GRIS_OTRAS = '#475569';
 const TEXTO = '#94a3b8';
@@ -58,16 +55,14 @@ const MAX_PORCIONES = 5;
 
 type Atajo = 7 | 30 | 90 | 'personalizado';
 
-/** "YYYY-MM-DD" de una fecha en la hora local. */
+
 const aDia = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-/** Medianoche local de un "YYYY-MM-DD", desplazada n días. */
 const medianoche = (dia: string, masDias = 0) => {
   const [a, m, d] = dia.split('-').map(Number);
   return new Date(a, m - 1, d + masDias);
 };
 
-/** Página dashboard/estadisticas (Sprint 4, solo administradores): tres gráficos de distinto tipo. */
 @Component({
   selector: 'app-dashboard-estadisticas',
   imports: [DecimalPipe, DashboardTabs, NombreCompletoPipe, PluralPipe],
@@ -77,7 +72,7 @@ const medianoche = (dia: string, masDias = 0) => {
 export class DashboardEstadisticas implements OnInit, OnDestroy {
   private readonly servicio = inject(EstadisticasService);
 
-  // ---- Lapso (un solo filtro para los tres gráficos, así los números siempre coinciden) ----
+
   protected readonly hoy = aDia(new Date());
   protected readonly atajos: { valor: Atajo; texto: string }[] = [
     { valor: 7, texto: 'Últimos 7 días' },
@@ -92,7 +87,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
     this.desde() > this.hasta() ? 'La fecha "desde" no puede ser posterior a "hasta".' : null,
   );
 
-  // ---- Datos ----
+
   protected readonly publicaciones = signal<PublicacionesPorUsuario | null>(null);
   protected readonly comentarios = signal<ComentariosPorDia | null>(null);
   protected readonly porPublicacion = signal<ComentariosPorPublicacion | null>(null);
@@ -103,7 +98,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
     const c = this.comentarios();
     return c && c.dias.length ? c.total / c.dias.length : 0;
   });
-  /** Porciones de la torta: las 5 publicaciones con más comentarios y el resto en "Otras". */
+
   protected readonly porciones = computed(() => {
     const datos = this.porPublicacion();
     if (!datos) return [];
@@ -125,7 +120,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
     return principales.map((p) => ({ ...p, porcentaje: datos.total ? (p.cantidad / datos.total) * 100 : 0 }));
   });
 
-  // ---- Gráficos ----
+
   private readonly lienzoBarras = viewChild<ElementRef<HTMLCanvasElement>>('barras');
   private readonly lienzoLinea = viewChild<ElementRef<HTMLCanvasElement>>('linea');
   private readonly lienzoTorta = viewChild<ElementRef<HTMLCanvasElement>>('torta');
@@ -134,9 +129,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
   constructor() {
     Chart.defaults.color = TEXTO;
     Chart.defaults.font.family = '"Plus Jakarta Sans", system-ui, sans-serif';
-    // Cuando llegan datos nuevos se redibujan los tres gráficos. afterRenderEffect corre DESPUÉS
-    // de actualizar el DOM: así los contenedores ya no están ocultos y tienen su tamaño real
-    // (con un effect común, Chart.js medía un contenedor todavía oculto, de tamaño 0).
+
     afterRenderEffect(() => {
       const [p, c, t] = [this.publicaciones(), this.comentarios(), this.porciones()];
       const [b, l, r] = [this.lienzoBarras(), this.lienzoLinea(), this.lienzoTorta()];
@@ -155,7 +148,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
 
   protected elegirAtajo(valor: Atajo): void {
     this.atajo.set(valor);
-    if (valor === 'personalizado') return; // se eligen las fechas a mano y se toca "Aplicar"
+    if (valor === 'personalizado') return; 
     this.hasta.set(this.hoy);
     this.desde.set(aDia(medianoche(this.hoy, -(valor - 1))));
     this.cargar();
@@ -165,7 +158,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
     (campo === 'desde' ? this.desde : this.hasta).set((evento.target as HTMLInputElement).value);
   }
 
-  /** Pide las tres estadísticas a la vez para el lapso elegido (hasta incluido: se manda el día siguiente). */
+
   protected cargar(): void {
     if (this.errorLapso()) return;
     const lapso: Lapso = {
@@ -222,7 +215,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
       displayColors: false,
     };
 
-    // 1) Barras horizontales: publicaciones por usuario, de mayor a menor, un solo color.
+
     const filas = p.items.slice(0, MAX_BARRAS);
     barras.parentElement!.style.height = `${Math.max(160, filas.length * 36 + 40)}px`;
     const configBarras: ChartConfiguration<'bar'> = {
@@ -263,7 +256,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
       },
     };
 
-    // 2) Línea: comentarios por día (los días sin comentarios valen 0).
+
     const configLinea: ChartConfiguration<'line'> = {
       type: 'line',
       data: {
@@ -274,7 +267,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
           borderWidth: 2,
           backgroundColor: 'rgba(255, 42, 133, 0.1)',
           fill: true,
-          tension: 0, // recta: entre un día y otro no hay datos que inventar
+          tension: 0, 
           pointRadius: c.dias.length > 40 ? 0 : 3,
           pointHoverRadius: 5,
           pointBackgroundColor: COLORES[1],
@@ -304,7 +297,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
       },
     };
 
-    // 3) Torta (dona): comentarios por publicación, las 5 con más y el resto en "Otras".
+
     const configTorta: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
       data: {
@@ -312,7 +305,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
         datasets: [{
           data: porciones.map((x) => x.cantidad),
           backgroundColor: porciones.map((x) => x.color),
-          borderColor: SUPERFICIE, // separación de 2px entre porciones
+          borderColor: SUPERFICIE, 
           borderWidth: 2,
           hoverOffset: 6,
         }],
@@ -323,7 +316,7 @@ export class DashboardEstadisticas implements OnInit, OnDestroy {
         cutout: '62%',
         animation: { duration: 300 },
         plugins: {
-          legend: { display: false }, // la leyenda es HTML, con cantidades y porcentajes
+          legend: { display: false }, 
           tooltip: {
             ...tooltip,
             callbacks: {

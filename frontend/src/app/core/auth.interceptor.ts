@@ -38,8 +38,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           titulo: 'Tu sesión venció',
           mensaje: 'Por seguridad, la sesión dura 15 minutos. Iniciá sesión de nuevo para seguir.',
         });
-        // Ya está resuelto: se termina el pedido sin error, así ningún componente
-        // muestra un segundo modal encima de este aviso.
         return EMPTY;
       }
       return throwError(() => err);

@@ -29,7 +29,7 @@ export class AutoAlturaDirective {
 
   protected ajustar(): void {
     const t = this.textarea;
-    t.style.height = 'auto'; // primero se achica, para medir el alto real del texto
+    t.style.height = 'auto'; 
     const borde = t.offsetHeight - t.clientHeight;
     const alto = Math.min(t.scrollHeight + borde, this.alturaMaxima());
     t.style.height = `${alto}px`;

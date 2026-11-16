@@ -14,16 +14,9 @@ import { AutoAlturaDirective } from '../directivas/auto-altura.directive';
 
 const MAX_CARACTERES = 500;
 
-/** Cuántos comentarios se traen por vez en cada modo. */
 const POR_PAGINA = { resumen: 3, completo: 5 } as const;
 
-/**
- * Comentarios de una publicación, los más recientes primero, con el campo para comentar.
- * - resumen (feed y Mi perfil): los 3 más recientes y un enlace a la publicación.
- * - completo (página de la publicación): de a 5, con "Cargar más" que agrega los
- *   siguientes debajo sin perder los que ya se ven.
- * Quien escribió un comentario lo puede editar; los editados dicen "editado".
- */
+
 @Component({
   selector: 'app-comentarios',
   imports: [ReactiveFormsModule, RouterLink, Avatar, Icono, TiempoRelativoPipe, NombreCompletoPipe, AutoAlturaDirective],
@@ -48,7 +41,7 @@ export class Comentarios implements OnInit {
   protected readonly enviando = signal(false);
   protected readonly maximo = MAX_CARACTERES;
 
-  /** Quedan comentarios por traer (los que ya se ven son menos que el total). */
+
   protected readonly hayMas = computed(() => this.comentarios().length < this.total());
 
   protected readonly mensaje = new FormControl('', {
@@ -57,7 +50,7 @@ export class Comentarios implements OnInit {
   });
   protected readonly texto = toSignal(this.mensaje.valueChanges, { initialValue: '' });
 
-  // Edición: un comentario a la vez.
+
   protected readonly editandoId = signal<string | null>(null);
   protected readonly guardando = signal(false);
   protected readonly edicion = new FormControl('', {
@@ -90,13 +83,11 @@ export class Comentarios implements OnInit {
     });
   }
 
-  /** Trae la página siguiente y la agrega abajo; los que ya estaban se siguen viendo. */
   protected cargarMas(): void {
     this.cargandoMas.set(true);
     const offset = this.comentarios().length;
     this.servicio.listarComentarios(this.publicacionId(), offset, POR_PAGINA.completo).subscribe({
       next: (pagina) => {
-        // Si alguien comentó mientras tanto, la página puede repetir alguno: se descartan.
         const vistos = new Set(this.comentarios().map((c) => c._id));
         this.comentarios.update((lista) => [...lista, ...pagina.items.filter((c) => !vistos.has(c._id))]);
         this.total.set(pagina.total);
@@ -118,7 +109,6 @@ export class Comentarios implements OnInit {
     this.enviando.set(true);
     this.servicio.comentar(this.publicacionId(), mensaje).subscribe({
       next: (comentario) => {
-        // El más nuevo va arriba, igual que el orden que devuelve el back.
         this.comentarios.update((lista) => [comentario, ...lista]);
         this.total.update((n) => n + 1);
         this.mensaje.reset();
@@ -145,7 +135,7 @@ export class Comentarios implements OnInit {
     const mensaje = this.edicion.value.trim();
     if (!mensaje || this.edicion.invalid) return;
     if (mensaje === c.mensaje) {
-      this.cancelarEdicion(); // no cambió nada: no hace falta marcarlo como editado
+      this.cancelarEdicion();
       return;
     }
     this.guardando.set(true);

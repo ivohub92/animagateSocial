@@ -16,19 +16,16 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto, imagen?: Express.Multer.File) {
-    // El registro público siempre crea perfil "usuario" (el DTO ni siquiera acepta el campo).
+
     const user = await this.usersService.registrar(dto, imagen);
     return this.sesion(user);
   }
 
   async login(dto: LoginDto) {
     const user = await this.usersService.findByIdentificador(dto.identificador);
-    // bcrypt.compare encripta la contraseña recibida con el salt guardado y compara los hashes.
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
-    // Recién con la contraseña correcta se avisa que la cuenta está deshabilitada:
-    // así no se revela el estado de una cuenta a quien no sabe su contraseña.
     if (!user.activo) throw new ForbiddenException(CUENTA_DESHABILITADA);
     return this.sesion(user);
   }

@@ -109,8 +109,6 @@ export class RegistroForm implements OnInit, OnDestroy {
   protected readonly barras = [1, 2, 3, 4];
 
   ngOnInit(): void {
-    // Las normas las acepta cada persona al registrarse: en el alta del admin no se piden
-    // (un control deshabilitado no cuenta para la validez del formulario).
     if (this.modo() === 'admin') this.form.controls.terminos.disable();
   }
 

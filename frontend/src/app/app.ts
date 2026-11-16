@@ -19,11 +19,11 @@ const sinNavbar = (url: string) => url === '/' || url.startsWith('/login');
 })
 export class App {
   private readonly router = inject(Router);
-  // Se crea al arrancar la app para que el contador de la sesión funcione en todas las pantallas.
+
   private readonly sesion = inject(SesionService);
 
   constructor() {
-    // PWA: avisa cuando hay una versión nueva de la app lista para usar
+
     inject(ActualizacionService).iniciar();
   }
 

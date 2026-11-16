@@ -8,8 +8,7 @@ import { VENCIMIENTO_TOKEN } from './token.js';
 
 @Module({
   imports: [
-    UsersModule,
-    // global: JwtService queda disponible también para los guards de otros módulos.
+    UsersModule,    
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],

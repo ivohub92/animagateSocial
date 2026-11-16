@@ -33,7 +33,6 @@ export class SaludController {
         MONGODB_URI: Boolean(process.env.MONGODB_URI),
         CORS_ORIGIN: Boolean(process.env.CORS_ORIGIN),
       },
-      // Orígenes que el backend acepta (no es un secreto): sirve para revisar CORS.
       corsPermitidos: origenesPermitidos(),
     };
   }

@@ -35,7 +35,7 @@ export class Cargando implements OnInit, OnDestroy {
     this.auth.autorizar().subscribe({
       next: () => ir('/publicaciones'),
       error: () => {
-        this.auth.logout(); // token vencido o inválido: se descarta
+        this.auth.logout(); 
         ir('/login');
       },
     });

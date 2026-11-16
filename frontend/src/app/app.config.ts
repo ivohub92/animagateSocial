@@ -21,8 +21,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     { provide: LOCALE_ID, useValue: 'es-AR' },
-    // PWA: el service worker guarda la app (HTML, JS, CSS, íconos y fuentes) para que abra rápido,
-    // se pueda instalar y cargue sin conexión. Solo en producción: en "ng serve" no se registra.
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

@@ -29,7 +29,6 @@ export class Navbar {
 
   protected salir(): void {
     this.auth.logout();
-    // replaceUrl: la página actual se reemplaza en el historial, así "atrás" no vuelve a ella
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }

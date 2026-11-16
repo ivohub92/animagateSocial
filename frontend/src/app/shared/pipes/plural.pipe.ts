@@ -10,12 +10,6 @@ function pluralizar(palabra: string): string {
   return palabra.replace(/([áéíóú])([ns])$/i, (_, v: string, c: string) => (SIN_TILDE[v] ?? v) + c) + 'es';
 }
 
-/**
- * Cantidad + palabra en singular o plural, con el número formateado en es-AR.
- *   {{ 1 | plural: 'comentario' }}          → "1 comentario"
- *   {{ 1500 | plural: 'publicación' }}      → "1.500 publicaciones"
- *   {{ 2 | plural: 'me gusta' : 'me gusta' }} → "2 me gusta" (plural irregular a mano)
- */
 @Pipe({ name: 'plural' })
 export class PluralPipe implements PipeTransform {
   transform(cantidad: number | null | undefined, singular: string, plural?: string): string {

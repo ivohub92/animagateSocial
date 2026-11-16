@@ -25,11 +25,7 @@ async function bootstrap() {
   await app.listen(PORT);
 }
 
-/**
- * Si la aplicación no puede iniciar (por ejemplo, no conecta a MongoDB), se levanta un
- * servidor mínimo que responde 503 explicando el motivo, con las credenciales ocultas.
- * Así el error se ve en el navegador sin tener que buscarlo en los logs del hosting.
- */
+
 function servirDiagnostico(err: unknown) {
   const detalle = (err instanceof Error ? err.message : String(err)).replace(
     /\/\/[^@\s/]+@/g,

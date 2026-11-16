@@ -31,8 +31,6 @@ function motivoSinUri(): string {
         const uri = config.get<string>('MONGODB_URI')?.trim();
         return {
           uri,
-          // La app arranca sin esperar a MongoDB y se conecta en segundo plano;
-          // si la conexión falla, el motivo se ve en GET / en lugar de tumbar el servidor.
           lazyConnection: true,
           serverSelectionTimeoutMS: 10_000,
           connectionFactory: (conexion: Connection) => {
